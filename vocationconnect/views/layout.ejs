@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <title><%= title %> - <%= siteData.siteName %></title>
+    <link rel="stylesheet" type="text/css" href="<%= BASE_URL %>/main.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <header>
+      <h1><%= siteData.siteName %></h1>
+      
+      <nav>
+        <a href="<%= BASE_URL %>/">Home</a> |
+        <a href="<%= BASE_URL %>/about">About</a> |
+        
+        <% if (!session || !session.userId) { %>
+          <a href="<%= BASE_URL %>/users/register">Register</a> |
+          <a href="<%= BASE_URL %>/users/login">Login</a>
+        <% } else { %>
+          <a href="<%= BASE_URL %>/dashboard">Dashboard</a> |
+          <a href="<%= BASE_URL %>/alumni/browse">Browse Alumni</a> |
+          <a href="<%= BASE_URL %>/connections/my">My Connections</a> |
+          <a href="<%= BASE_URL %>/interviews/my">My Interviews</a> |
+          <a href="<%= BASE_URL %>/users/profile">Profile</a> |
+          <a href="<%= BASE_URL %>/users/logout">Logout</a>
+        <% } %>
+      </nav>
+      
+      <% if (session && session.username) { %>
+        <p>Logged in as <strong><%= session.username %></strong> (<%= session.userType %>)</p>
+      <% } %>
+    </header>
+
+    <main>
+      <%- body %>
+    </main>
+  </body>
+</html>

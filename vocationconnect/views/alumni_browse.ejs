@@ -1,0 +1,25 @@
+<h2>Browse Alumni</h2>
+
+<p><a href="<%= BASE_URL %>/alumni/search">Advanced Search</a></p>
+
+<% if (alumni && alumni.length > 0) { %>
+  <div class="grid">
+    <% alumni.forEach(function(alum) { %>
+      <div class="card alumni-card">
+        <h3><%= alum.first_name %> <%= alum.last_name %></h3>
+        <p class="company"><%= alum.company || 'Company not specified' %></p>
+        <p class="job-title"><%= alum.job_title || 'Job title not specified' %></p>
+        <p><strong>Industry:</strong> <%= alum.industry || 'N/A' %></p>
+        <p><strong>Experience:</strong> <%= alum.years_experience || 0 %> years</p>
+        <% if (alum.available_for_mock) { %>
+          <span class="badge badge-success">Available for Interviews</span>
+        <% } %>
+        <div class="card-footer">
+          <a href="<%= BASE_URL %>/alumni/<%= alum.id %>" class="btn btn-primary">View Profile</a>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+<% } else { %>
+  <p>No alumni profiles found.</p>
+<% } %>

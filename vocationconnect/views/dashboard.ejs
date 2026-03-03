@@ -1,0 +1,57 @@
+<h2>Dashboard</h2>
+
+<div class="welcome-message">
+  Welcome, <strong><%= session.username %></strong>!
+</div>
+
+<% if (session.userType === 'student') { %>
+  <h3>Student Dashboard</h3>
+  
+  <div class="grid">
+    <div class="card">
+      <h4>🎓 Quick Actions</h4>
+      <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse Alumni</a>
+      <a href="<%= BASE_URL %>/alumni/search" class="btn btn-secondary">Search Alumni</a>
+    </div>
+    
+    <div class="card">
+      <h4>👥 My Connections</h4>
+      <p>Manage your connections with alumni mentors.</p>
+      <a href="<%= BASE_URL %>/connections/my" class="btn">View Connections</a>
+    </div>
+    
+    <div class="card">
+      <h4>🎤 Mock Interviews</h4>
+      <p>View scheduled and past interviews.</p>
+      <a href="<%= BASE_URL %>/interviews/my" class="btn">My Interviews</a>
+    </div>
+    
+    <div class="card">
+      <h4>👤 My Profile</h4>
+      <p>Update your profile information.</p>
+      <a href="<%= BASE_URL %>/users/profile" class="btn">Edit Profile</a>
+    </div>
+  </div>
+<% } else { %>
+  <h3>Alumni Dashboard</h3>
+  
+  <div class="grid">
+    <div class="card">
+      <h4>📬 Connection Requests</h4>
+      <p>Review and respond to student connection requests.</p>
+      <a href="<%= BASE_URL %>/connections/my" class="btn">View Requests</a>
+    </div>
+    
+    <div class="card">
+      <h4>🎤 My Interviews</h4>
+      <p>View scheduled and completed mock interviews.</p>
+      <a href="<%= BASE_URL %>/interviews/my" class="btn">My Interviews</a>
+    </div>
+    
+    <div class="card">
+      <h4>👤 My Profile</h4>
+      <p>Keep your profile updated to help students find you.</p>
+      <a href="<%= BASE_URL %>/users/profile" class="btn">Edit Profile</a>
+    </div>
+  </div>
+<% } %>

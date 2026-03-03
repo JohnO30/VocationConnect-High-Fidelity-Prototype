@@ -1,0 +1,34 @@
+<h2>Schedule Mock Interview</h2>
+
+<div class="card">
+  <h3>Interview with <%= alumni.first_name %> <%= alumni.last_name %></h3>
+  <p><%= alumni.company %> - <%= alumni.job_title %></p>
+</div>
+
+<form action="<%= BASE_URL %>/interviews/schedule" method="POST">
+  <input type="hidden" name="alumni_id" value="<%= alumni.id %>">
+  
+  <label for="scheduled_date">Date and Time:</label>
+  <input type="datetime-local" id="scheduled_date" name="scheduled_date" required>
+  
+  <label for="duration_minutes">Duration (minutes):</label>
+  <select id="duration_minutes" name="duration_minutes">
+    <option value="20">20 minutes</option>
+    <option value="30" selected>30 minutes</option>
+    <option value="45">45 minutes</option>
+    <option value="60">60 minutes</option>
+  </select>
+  
+  <label for="interview_type">Interview Type:</label>
+  <select id="interview_type" name="interview_type">
+    <option value="Technical Interview">Technical Interview</option>
+    <option value="Behavioral Interview">Behavioral Interview</option>
+    <option value="Case Interview">Case Interview</option>
+    <option value="General Career Guidance">General Career Guidance</option>
+  </select>
+  
+  <label for="notes">Notes/Special Requests:</label>
+  <textarea id="notes" name="notes" placeholder="Any specific topics you'd like to focus on..."></textarea>
+  
+  <input type="submit" value="Schedule Interview">
+</form>

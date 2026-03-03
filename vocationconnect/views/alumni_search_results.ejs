@@ -1,0 +1,36 @@
+<h2>Search Results</h2>
+
+<p>
+    <% if (keyword) { %>
+        Keyword: "<%= keyword %>"
+    <% } %>
+    <% if (industry && industry !== 'all') { %>
+        | Industry: <%= industry %>
+    <% } %>
+</p>
+
+<% if (alumni && alumni.length > 0) { %>
+  <p>Found <%= alumni.length %> alumni</p>
+  
+  <div class="grid">
+    <% alumni.forEach(function(alum) { %>
+      <div class="card alumni-card">
+        <h3><%= alum.first_name %> <%= alum.last_name %></h3>
+        <p class="company"><%= alum.company || 'Company not specified' %></p>
+        <p class="job-title"><%= alum.job_title || 'Job title not specified' %></p>
+        <p><strong>Industry:</strong> <%= alum.industry || 'N/A' %></p>
+        <p><strong>Experience:</strong> <%= alum.years_experience || 0 %> years</p>
+        <% if (alum.available_for_mock) { %>
+          <span class="badge badge-success">Available for Interviews</span>
+        <% } %>
+        <div class="card-footer">
+          <a href="<%= BASE_URL %>/alumni/<%= alum.id %>" class="btn btn-primary">View Profile</a>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+<% } else { %>
+  <p>No alumni found matching your search criteria.</p>
+<% } %>
+
+<p><a href="<%= BASE_URL %>/alumni/search">New search</a> | <a href="<%= BASE_URL %>/alumni/browse">Browse all</a></p>

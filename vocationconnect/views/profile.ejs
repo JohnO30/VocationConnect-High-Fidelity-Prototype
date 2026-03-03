@@ -1,0 +1,48 @@
+<h2>My Profile</h2>
+
+<div class="card">
+  <h3><%= user.first_name %> <%= user.last_name %></h3>
+  <p><strong>Username:</strong> <%= user.username %></p>
+  <p><strong>Email:</strong> <%= user.email %></p>
+  <p><strong>User Type:</strong> <%= user.user_type %></p>
+  <p><strong>Graduation Year:</strong> <%= user.graduation_year || 'Not specified' %></p>
+</div>
+
+<% if (user.user_type === 'alumni') { %>
+  <h3>Alumni Profile</h3>
+  
+  <form action="<%= BASE_URL %>/users/profile/update" method="POST">
+    <label for="company">Company:</label>
+    <input type="text" id="company" name="company" value="<%= user.company || '' %>">
+    
+    <label for="job_title">Job Title:</label>
+    <input type="text" id="job_title" name="job_title" value="<%= user.job_title || '' %>">
+    
+    <label for="industry">Industry:</label>
+    <select id="industry" name="industry">
+      <option value="">Select Industry</option>
+      <option value="Technology" <%= user.industry === 'Technology' ? 'selected' : '' %>>Technology</option>
+      <option value="Finance" <%= user.industry === 'Finance' ? 'selected' : '' %>>Finance</option>
+      <option value="Healthcare" <%= user.industry === 'Healthcare' ? 'selected' : '' %>>Healthcare</option>
+      <option value="Education" <%= user.industry === 'Education' ? 'selected' : '' %>>Education</option>
+      <option value="Consulting" <%= user.industry === 'Consulting' ? 'selected' : '' %>>Consulting</option>
+      <option value="Other" <%= user.industry === 'Other' ? 'selected' : '' %>>Other</option>
+    </select>
+    
+    <label for="years_experience">Years of Experience:</label>
+    <input type="number" id="years_experience" name="years_experience" value="<%= user.years_experience || 0 %>" min="0">
+    
+    <label for="skills">Skills (comma-separated):</label>
+    <textarea id="skills" name="skills"><%= user.skills || '' %></textarea>
+    
+    <label for="bio">Bio:</label>
+    <textarea id="bio" name="bio"><%= user.bio || '' %></textarea>
+    
+    <label>
+      <input type="checkbox" name="available_for_mock" <%= user.available_for_mock ? 'checked' : '' %>>
+      Available for mock interviews
+    </label>
+    
+    <input type="submit" value="Update Profile">
+  </form>
+<% } %>

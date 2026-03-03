@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Interview - <%= siteData.siteName %></title>
+    <link rel="stylesheet" href="<%= BASE_URL %>/interview-room.css">
+</head>
+<body class="interview-room">
+
+    <header class="interview-header">
+        <button class="nav-btn" onclick="if(confirm('Leave interview?')) window.location.href='<%= BASE_URL %>/interviews/my'">&lt; Back</button>
+        <h2>Mock Interview Room</h2>
+        <button class="nav-btn" onclick="window.location.href='<%= BASE_URL %>/users/profile'">[<%= session.username %>]</button>
+    </header>
+
+    <main class="dashboard-container">
+        
+        <section class="left-panel">
+            <div class="video-stage">
+                <div class="interviewer-label">
+                    <p><strong>
+                        <% if (session.userType === 'student') { %>
+                            <%= interview.alumni_first_name %> <%= interview.alumni_last_name %>
+                        <% } else { %>
+                            <%= interview.student_first_name %> <%= interview.student_last_name %>
+                        <% } %>
+                    </strong></p>
+                    <p style="color: #888;">
+                        <% if (session.userType === 'student') { %>
+                            (<%= interview.company %> - <%= interview.job_title %>)
+                        <% } else { %>
+                            (Student)
+                        <% } %>
+                    </p>
+                </div>
+
+                <div class="user-pip">
+                    <span class="pip-placeholder" id="camStatus">Camera Loading...</span>
+                    <video id="userCam" autoplay muted playsinline></video>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <h4>Current Interview Question:</h4>
+                <p id="currentQuestion">
+                    <% if (questions && questions.length > 0) { %>
+                        <%= questions[0].question_text %>
+                    <% } else { %>
+                        Tell me about yourself and your background.
+                    <% } %>
+                </p>
+                
+                <% if (questions && questions.length > 1) { %>
+                    <div class="question-nav">
+                        <% questions.forEach(function(q, idx) { %>
+                            <button onclick="changeQuestion(<%= idx %>)" id="q-btn-<%= idx %>" <%= idx === 0 ? 'class="active"' : '' %>>
+                                Q<%= idx + 1 %>
+                            </button>
+                        <% }); %>
+                    </div>
+                    
+                    <script>
+                        const allQuestions = <%- JSON.stringify(questions) %>;
+                        let currentQuestionIndex = 0;
+                        
+                        function changeQuestion(index) {
+                            currentQuestionIndex = index;
+                            document.getElementById('currentQuestion').innerText = allQuestions[index].question_text;
+                            
+                            // Update button styles
+                            document.querySelectorAll('.question-nav button').forEach((btn, idx) => {
+                                btn.classList.toggle('active', idx === index);
+                            });
+                        }
+                    </script>
+                <% } %>
+            </div>
+
+            <div class="timer-row">
+                Time Elapsed: <span id="timerDisplay">00:00</span>
+            </div>
+        </section>
+
+        <aside class="right-panel">
+            <div class="sidebar-title">Chat & Notes</div>
+            
+            <div class="scroll-area chat-box" id="chatArea">
+                <p class="chat-msg">Chat messages will appear here...</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="handleChatKeyPress(event)">
+            </div>
+
+            <div class="notes-box">
+                <label>Your Private Notes:</label>
+                <textarea id="notesArea" placeholder="Take notes here..."><%= userNotes || '' %></textarea>
+                <button class="ctrl-btn" onclick="saveNotes()" style="margin-top: 10px;">Save Notes</button>
+            </div>
+        </aside>
+
+    </main>
+
+    <footer class="interview-footer">
+        <button class="ctrl-btn" id="muteBtn">🎤 Mute</button>
+        <button class="ctrl-btn" id="videoBtn">📷 Video Off</button>
+        <button class="ctrl-btn btn-danger" id="endCallBtn">End Interview</button>
+    </footer>
+
+    <script>
+        // Interview ID for API calls
+        const interviewId = <%= interview.id %>;
+        const baseUrl = '<%= BASE_URL %>';
+        
+        // Camera and timer state
+        let stream;
+        let secondsElapsed = 0;
+        
+        // DOM Elements
+        const videoElement = document.getElementById('userCam');
+        const camStatus = document.getElementById('camStatus');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const chatInput = document.getElementById('chatInput');
+        const chatArea = document.getElementById('chatArea');
+        const muteBtn = document.getElementById('muteBtn');
+        const videoBtn = document.getElementById('videoBtn');
+        const endCallBtn = document.getElementById('endCallBtn');
+        const notesArea = document.getElementById('notesArea');
+        
+        // Initialize camera
+        async function initCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                videoElement.srcObject = stream;
+                camStatus.style.display = 'none';
+            } catch (err) {
+                console.error('Camera error:', err);
+                camStatus.innerText = "Camera Access Denied";
+            }
+        }
+        
+        // Toggle audio
+        function toggleAudio() {
+            if (!stream) return;
+            const audioTrack = stream.getAudioTracks()[0];
+            audioTrack.enabled = !audioTrack.enabled;
+            muteBtn.innerHTML = audioTrack.enabled ? "🎤 Mute" : "🚫 Unmute";
+            muteBtn.classList.toggle('btn-danger', !audioTrack.enabled);
+        }
+        
+        // Toggle video
+        function toggleVideo() {
+            if (!stream) return;
+            const videoTrack = stream.getVideoTracks()[0];
+            videoTrack.enabled = !videoTrack.enabled;
+            videoBtn.innerHTML = videoTrack.enabled ? "📷 Video Off" : "📷 Video On";
+            videoBtn.classList.toggle('btn-danger', !videoTrack.enabled);
+            videoElement.style.opacity = videoTrack.enabled ? "1" : "0";
+            camStatus.style.display = videoTrack.enabled ? "none" : "block";
+            camStatus.innerText = "Camera Off";
+        }
+        
+        // Timer
+        const timerInterval = setInterval(() => {
+            secondsElapsed++;
+            const mins = Math.floor(secondsElapsed / 60);
+            const secs = secondsElapsed % 60;
+            timerDisplay.innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }, 1000);
+        
+        // Chat functions
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter' && chatInput.value.trim() !== "") {
+                sendChatMessage();
+            }
+        }
+        
+        async function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            try {
+                const response = await fetch(`${baseUrl}/interviews/chat/${interviewId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message_text: message })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    addChatMessage('You', message, true);
+                    chatInput.value = "";
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        }
+        
+        function addChatMessage(sender, text, isUser = false) {
+            const msg = document.createElement('p');
+            msg.className = 'chat-msg' + (isUser ? ' user' : '');
+            msg.innerText = `${sender}: ${text}`;
+            chatArea.appendChild(msg);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        // Load chat history
+        async function loadChatHistory() {
+            try {
+                const response = await fetch(`${baseUrl}/interviews/chat/${interviewId}`);
+                const messages = await response.json();
+                
+                // Clear initial message
+                chatArea.innerHTML = '';
+                
+                messages.forEach(msg => {
+                    addChatMessage(
+                        msg.first_name + ' ' + msg.last_name, 
+                        msg.message_text,
+                        msg.sender_id === <%= session.userId %>
+                    );
+                });
+            } catch (error) {
+                console.error('Error loading chat:', error);
+            }
+        }
+        
+        // Save notes
+        async function saveNotes() {
+            const notes = notesArea.value;
+            
+            try {
+                const response = await fetch(`${baseUrl}/interviews/notes/${interviewId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ note_text: notes })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Notes saved successfully!');
+                }
+            } catch (error) {
+                console.error('Error saving notes:', error);
+                alert('Failed to save notes');
+            }
+        }
+        
+        // Event listeners
+        muteBtn.addEventListener('click', toggleAudio);
+        videoBtn.addEventListener('click', toggleVideo);
+        endCallBtn.addEventListener('click', () => {
+            if(confirm("End interview?")) {
+                clearInterval(timerInterval);
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                window.location.href = baseUrl + '/interviews/my';
+            }
+        });
+        
+        // Initialize
+        initCamera();
+        loadChatHistory();
+        
+        // Poll for new messages every 3 seconds
+        setInterval(loadChatHistory, 3000);
+        
+        // Auto-save notes every 30 seconds
+        setInterval(() => {
+            if (notesArea.value.trim()) {
+                saveNotes();
+            }
+        }, 30000);
+    </script>
+
+</body>
+</html>

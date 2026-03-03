@@ -1,0 +1,47 @@
+<h2>My Mock Interviews</h2>
+
+<% if (interviews && interviews.length > 0) { %>
+  <div class="grid">
+    <% interviews.forEach(function(interview) { %>
+      <div class="card interview-card">
+        <h3>
+          <% if (session.userType === 'student') { %>
+            Interview with <%= interview.alumni_first_name %> <%= interview.alumni_last_name %>
+          <% } else { %>
+            Interview with <%= interview.student_first_name %> <%= interview.student_last_name %>
+          <% } %>
+        </h3>
+        
+        <p><strong>Type:</strong> <%= interview.interview_type || 'General' %></p>
+        <p><strong>Date:</strong> <%= new Date(interview.scheduled_date).toLocaleString() %></p>
+        <p><strong>Duration:</strong> <%= interview.duration_minutes %> minutes</p>
+        <p><strong>Status:</strong> <span class="interview-status status-<%= interview.status %>"><%= interview.status %></span></p>
+        
+        <% if (interview.notes) { %>
+          <p><strong>Notes:</strong> <%= interview.notes %></p>
+        <% } %>
+        
+        <% if (interview.feedback) { %>
+          <div class="info">
+            <h4>Feedback</h4>
+            <p><%= interview.feedback %></p>
+            <% if (interview.rating) { %>
+              <p><strong>Rating:</strong> <%= interview.rating %>/5</p>
+            <% } %>
+          </div>
+        <% } %>
+        
+        <div class="card-footer">
+          <% if (interview.status === 'scheduled') { %>
+            <a href="<%= BASE_URL %>/interviews/room/<%= interview.id %>" class="btn btn-success">Join Interview</a>
+          <% } %>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+<% } else { %>
+  <p>No interviews found.</p>
+  <% if (session.userType === 'student') { %>
+    <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse Alumni to Schedule</a>
+  <% } %>
+<% } %>

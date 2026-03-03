@@ -1,0 +1,49 @@
+<h2>Welcome to <%= siteData.siteName %>!</h2>
+
+<% if (session && session.userId) { %>
+  <div class="welcome-message">
+    Welcome back, <strong><%= session.username %></strong>! Connect with alumni and practice your interview skills.
+  </div>
+  
+  <p>VocationConnect helps students connect with alumni mentors for career guidance and mock interview practice.</p>
+  
+  <a href="<%= BASE_URL %>/dashboard" class="btn btn-primary">Go to Dashboard</a>
+  <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse Alumni</a>
+<% } else { %>
+  <p>Connect with alumni from your university for mentorship, career advice, and mock interview practice.</p>
+  
+  <p>Please <a href="<%= BASE_URL %>/users/login">login</a> or <a href="<%= BASE_URL %>/users/register">register</a> to get started.</p>
+<% } %>
+
+<h3>Platform Features</h3>
+<ul class="features-list">
+  <li><strong>Alumni Directory:</strong> Browse and search alumni profiles by industry, company, and expertise</li>
+  <li><strong>Connection Requests:</strong> Send connection requests to alumni mentors</li>
+  <li><strong>Mock Interviews:</strong> Schedule and conduct live mock interviews with alumni</li>
+  <li><strong>Real-time Communication:</strong> Video chat, messaging, and note-taking during interviews</li>
+  <li><strong>Interview Feedback:</strong> Receive constructive feedback and ratings from experienced professionals</li>
+  <li><strong>Career Guidance:</strong> Get advice on career paths, job applications, and industry insights</li>
+</ul>
+
+<h3>How It Works</h3>
+<div class="grid">
+  <div class="card">
+    <h4>1. Create Your Profile</h4>
+    <p>Register as a student or alumni member and complete your profile with your background and interests.</p>
+  </div>
+  
+  <div class="card">
+    <h4>2. Connect with Alumni</h4>
+    <p>Browse alumni profiles, filter by industry or company, and send connection requests to potential mentors.</p>
+  </div>
+  
+  <div class="card">
+    <h4>3. Schedule Mock Interviews</h4>
+    <p>Once connected, schedule mock interviews with alumni to practice for real job interviews.</p>
+  </div>
+  
+  <div class="card">
+    <h4>4. Improve Your Skills</h4>
+    <p>Participate in live video interviews, receive feedback, and continuously improve your interview performance.</p>
+  </div>
+</div>

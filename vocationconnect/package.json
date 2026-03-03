@@ -1,0 +1,24 @@
+{
+  "name": "vocationconnect",
+  "version": "1.0.0",
+  "description": "Alumni connection app with mock interview features",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.2.0",
+    "express-ejs-layouts": "^2.5.1",
+    "express-sanitizer": "^1.0.6",
+    "express-session": "^1.18.2",
+    "express-validator": "^7.3.1",
+    "mysql2": "^3.15.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

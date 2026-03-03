@@ -1,0 +1,49 @@
+<!-- Display alumni's basic information -->
+<h2><%= alumni.first_name %> <%= alumni.last_name %></h2>
+
+<div class="card">
+  <p class="company"><%= alumni.company || 'Company not specified' %></p>
+  <p class="job-title"><%= alumni.job_title || 'Job title not specified' %></p>
+  <p><strong>Industry:</strong> <%= alumni.industry || 'N/A' %></p>
+  <p><strong>Experience:</strong> <%= alumni.years_experience || 0 %> years</p>
+  <p><strong>Graduation Year:</strong> <%= alumni.graduation_year %></p>
+  
+  <!-- Display bio if available -->
+  <% if (alumni.bio) { %>
+    <h4>Bio</h4>
+    <p><%= alumni.bio %></p>
+  <% } %>
+  
+  <!-- Display skills if available -->
+  <% if (alumni.skills) { %>
+    <h4>Skills</h4>
+    <p><%= alumni.skills %></p>
+  <% } %>
+  
+  <!-- Show availability badge for mock interviews -->
+  <% if (alumni.available_for_mock) { %>
+    <span class="badge badge-success">Available for Mock Interviews</span>
+  <% } %>
+</div>
+
+<!-- Show connection options for students -->
+<% if (session.userType === 'student') { %>
+  <% if (!connection) { %>
+    <!-- Display connection request form if no existing connection -->
+    <h3>Send Connection Request</h3>
+    <form action="<%= BASE_URL %>/connections/request" method="POST">
+      <input type="hidden" name="alumni_id" value="<%= alumni.id %>">
+      <label for="message">Message:</label>
+      <textarea id="message" name="message" required>Hi <%= alumni.first_name %>, I would love to connect and learn more about your experience!</textarea>
+      <input type="submit" value="Send Request">
+    </form>
+  <% } else { %>
+    <!-- Display connection status and interview scheduling option -->
+    <div class="info">
+      <p><strong>Connection Status:</strong> <span class="interview-status status-<%= connection.status %>"><%= connection.status %></span></p>
+      <% if (connection.status === 'accepted' && alumni.available_for_mock) { %>
+        <a href="<%= BASE_URL %>/interviews/schedule/<%= alumni.id %>" class="btn btn-success">Schedule Mock Interview</a>
+      <% } %>
+    </div>
+  <% } %>
+<% } %>

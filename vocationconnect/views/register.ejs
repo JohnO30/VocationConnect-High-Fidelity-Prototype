@@ -1,0 +1,42 @@
+<h2>Register for VocationConnect</h2>
+
+<% if (errors && errors.length > 0) { %>
+    <div class="error">
+        <p>Please fix the following issues:</p>
+        <ul>
+            <% errors.forEach(error => { %>
+                <li><%= error.msg %></li>
+            <% }) %>
+        </ul>
+    </div>
+<% } %>
+
+<form action="<%= BASE_URL %>/users/registered" method="POST">
+    <label for="user_type">I am a:</label>
+    <select id="user_type" name="user_type" required>
+        <option value="student">Student</option>
+        <option value="alumni">Alumni</option>
+    </select>
+    
+    <label for="username">Username (2-20 chars):</label>
+    <input type="text" id="username" name="username" required>
+    
+    <label for="first_name">First Name:</label>
+    <input type="text" id="first_name" name="first_name" required>
+    
+    <label for="last_name">Last Name:</label>
+    <input type="text" id="last_name" name="last_name" required>
+    
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    
+    <label for="graduation_year">Graduation Year:</label>
+    <input type="number" id="graduation_year" name="graduation_year" min="1950" max="2030">
+
+    <label for="password">Password (Min 8 chars, 1 Uppercase, 1 Lowercase, 1 Number, 1 Symbol):</label>
+    <input type="password" id="password" name="password" required>
+
+    <input type="submit" value="Register">
+</form>
+
+<p>Already have an account? <a href="<%= BASE_URL %>/users/login">Login here</a></p>
