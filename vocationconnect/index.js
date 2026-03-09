@@ -1,5 +1,5 @@
-[// Import required modules
-var express = require('express');
+// Import required modules
+const express = require('express');
 var ejs = require('ejs');
 var expressLayouts = require('express-ejs-layouts');
 const path = require('path');
