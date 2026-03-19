@@ -1,48 +1,80 @@
-<h2>My Profile</h2>
+<div class="content-wrapper">
+  <h2>My Profile</h2>
 
-<div class="card">
-  <h3><%= user.first_name %> <%= user.last_name %></h3>
-  <p><strong>Username:</strong> <%= user.username %></p>
-  <p><strong>Email:</strong> <%= user.email %></p>
-  <p><strong>User Type:</strong> <%= user.user_type %></p>
-  <p><strong>Graduation Year:</strong> <%= user.graduation_year || 'Not specified' %></p>
+  <div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem;">
+      <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #0077B5, #0A66C2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">👤</div>
+      <div>
+        <h3 style="margin-top: 0;"><%= user.first_name %> <%= user.last_name %></h3>
+        <p style="margin: 0;"><strong>@<%= user.username %></strong></p>
+        <p style="margin: 0; color: #666;">📧 <%= user.email %></p>
+        <% if (user.graduation_year) { %>
+          <p style="margin: 0; color: #666;">🎓 Graduated: <%= user.graduation_year %></p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <% if (user.user_type === 'alumni') { %>
+    <div class="card" style="margin-bottom: 2rem;">
+      <h3 style="margin-top: 0;">Professional Information</h3>
+      
+      <form action="<%= BASE_URL %>/users/profile/update" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <div>
+            <label for="company">Company:</label>
+            <input type="text" id="company" name="company" placeholder="e.g., Google, Microsoft" value="<%= user.company || '' %>">
+          </div>
+          
+          <div>
+            <label for="job_title">Job Title:</label>
+            <input type="text" id="job_title" name="job_title" placeholder="e.g., Senior Software Engineer" value="<%= user.job_title || '' %>">
+          </div>
+          
+          <div>
+            <label for="industry">Industry:</label>
+            <select id="industry" name="industry">
+              <option value="">Select Industry</option>
+              <option value="Technology" <%= user.industry === 'Technology' ? 'selected' : '' %>>Technology</option>
+              <option value="Finance" <%= user.industry === 'Finance' ? 'selected' : '' %>>Finance</option>
+              <option value="Healthcare" <%= user.industry === 'Healthcare' ? 'selected' : '' %>>Healthcare</option>
+              <option value="Education" <%= user.industry === 'Education' ? 'selected' : '' %>>Education</option>
+              <option value="Consulting" <%= user.industry === 'Consulting' ? 'selected' : '' %>>Consulting</option>
+              <option value="Other" <%= user.industry === 'Other' ? 'selected' : '' %>>Other</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="years_experience">Years of Experience:</label>
+            <input type="number" id="years_experience" name="years_experience" value="<%= user.years_experience || 0 %>" min="0">
+          </div>
+        </div>
+        
+        <div style="margin-top: 1.5rem;">
+          <label for="skills">Skills (comma-separated):</label>
+          <textarea id="skills" name="skills" placeholder="e.g., JavaScript, React, Node.js, AWS"><%= user.skills || '' %></textarea>
+        </div>
+        
+        <div>
+          <label for="bio">Professional Bio:</label>
+          <textarea id="bio" name="bio" placeholder="Tell other students about your career journey, expertise, and mentoring experience."><%= user.bio || '' %></textarea>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background-color: var(--bg-light); border-radius: 6px; display: flex; align-items: center; gap: 1rem;">
+          <input type="checkbox" id="available_for_mock" name="available_for_mock" <%= user.available_for_mock ? 'checked' : '' %> style="width: auto; cursor: pointer;">
+          <label for="available_for_mock" style="margin: 0; cursor: pointer;">✓ I'm available to mentor and participate in mock interviews</label>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+          <input type="submit" value="Save Changes" class="btn" style="padding: 0.75rem 2rem; font-size: 1rem;">
+        </div>
+      </form>
+    </div>
+  <% } else { %>
+    <div class="card" style="margin-bottom: 2rem;">
+      <h3 style="margin-top: 0;">Student Information</h3>
+      <p><strong>Account Type:</strong> <span class="badge badge-primary">Student</span></p>
+      <p><strong>Graduation Year:</strong> <%= user.graduation_year || 'Not specified' %></p>
+    </div>
+  <% } %>
 </div>
-
-<% if (user.user_type === 'alumni') { %>
-  <h3>Alumni Profile</h3>
-  
-  <form action="<%= BASE_URL %>/users/profile/update" method="POST">
-    <label for="company">Company:</label>
-    <input type="text" id="company" name="company" value="<%= user.company || '' %>">
-    
-    <label for="job_title">Job Title:</label>
-    <input type="text" id="job_title" name="job_title" value="<%= user.job_title || '' %>">
-    
-    <label for="industry">Industry:</label>
-    <select id="industry" name="industry">
-      <option value="">Select Industry</option>
-      <option value="Technology" <%= user.industry === 'Technology' ? 'selected' : '' %>>Technology</option>
-      <option value="Finance" <%= user.industry === 'Finance' ? 'selected' : '' %>>Finance</option>
-      <option value="Healthcare" <%= user.industry === 'Healthcare' ? 'selected' : '' %>>Healthcare</option>
-      <option value="Education" <%= user.industry === 'Education' ? 'selected' : '' %>>Education</option>
-      <option value="Consulting" <%= user.industry === 'Consulting' ? 'selected' : '' %>>Consulting</option>
-      <option value="Other" <%= user.industry === 'Other' ? 'selected' : '' %>>Other</option>
-    </select>
-    
-    <label for="years_experience">Years of Experience:</label>
-    <input type="number" id="years_experience" name="years_experience" value="<%= user.years_experience || 0 %>" min="0">
-    
-    <label for="skills">Skills (comma-separated):</label>
-    <textarea id="skills" name="skills"><%= user.skills || '' %></textarea>
-    
-    <label for="bio">Bio:</label>
-    <textarea id="bio" name="bio"><%= user.bio || '' %></textarea>
-    
-    <label>
-      <input type="checkbox" name="available_for_mock" <%= user.available_for_mock ? 'checked' : '' %>>
-      Available for mock interviews
-    </label>
-    
-    <input type="submit" value="Update Profile">
-  </form>
-<% } %>

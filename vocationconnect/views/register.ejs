@@ -1,42 +1,74 @@
-<h2>Register for VocationConnect</h2>
+<div style="max-width: 550px; margin: 2rem auto;">
+  <div class="card" style="text-align: center; margin-bottom: 2rem;">
+    <h2 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--primary-color);">Join VocationConnect</h2>
+    <p style="color: var(--text-gray);">Connect with alumni mentors and advance your career</p>
+  </div>
 
-<% if (errors && errors.length > 0) { %>
-    <div class="error">
-        <p>Please fix the following issues:</p>
-        <ul>
-            <% errors.forEach(error => { %>
-                <li><%= error.msg %></li>
-            <% }) %>
-        </ul>
+  <% if (errors && errors.length > 0) { %>
+    <div class="error" style="margin-bottom: 1.5rem;">
+      <p style="margin-top: 0;">Please fix the following issues:</p>
+      <ul style="margin-bottom: 0;">
+        <% errors.forEach(error => { %>
+          <li><%= error.msg %></li>
+        <% }) %>
+      </ul>
     </div>
-<% } %>
+  <% } %>
 
-<form action="<%= BASE_URL %>/users/registered" method="POST">
-    <label for="user_type">I am a:</label>
-    <select id="user_type" name="user_type" required>
-        <option value="student">Student</option>
-        <option value="alumni">Alumni</option>
-    </select>
-    
-    <label for="username">Username (2-20 chars):</label>
-    <input type="text" id="username" name="username" required>
-    
-    <label for="first_name">First Name:</label>
-    <input type="text" id="first_name" name="first_name" required>
-    
-    <label for="last_name">Last Name:</label>
-    <input type="text" id="last_name" name="last_name" required>
-    
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
-    
-    <label for="graduation_year">Graduation Year:</label>
-    <input type="number" id="graduation_year" name="graduation_year" min="1950" max="2030">
+  <div class="card">
+    <form action="<%= BASE_URL %>/users/registered" method="POST">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div style="grid-column: 1 / -1;">
+          <label for="user_type">I am a:</label>
+          <select id="user_type" name="user_type" required>
+            <option value="">Select account type</option>
+            <option value="student">Student</option>
+            <option value="alumni">Alumni</option>
+          </select>
+        </div>
 
-    <label for="password">Password (Min 8 chars, 1 Uppercase, 1 Lowercase, 1 Number, 1 Symbol):</label>
-    <input type="password" id="password" name="password" required>
+        <div>
+          <label for="first_name">First Name</label>
+          <input type="text" id="first_name" name="first_name" placeholder="John" required>
+        </div>
+        
+        <div>
+          <label for="last_name">Last Name</label>
+          <input type="text" id="last_name" name="last_name" placeholder="Doe" required>
+        </div>
 
-    <input type="submit" value="Register">
-</form>
+        <div style="grid-column: 1 / -1;">
+          <label for="username">Username (2-20 characters)</label>
+          <input type="text" id="username" name="username" placeholder="john_doe_2024" required>
+        </div>
+        
+        <div style="grid-column: 1 / -1;">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="john@example.com" required>
+        </div>
+        
+        <div>
+          <label for="graduation_year">Graduation Year</label>
+          <input type="number" id="graduation_year" name="graduation_year" min="1950" max="2030" placeholder="2024">
+        </div>
 
-<p>Already have an account? <a href="<%= BASE_URL %>/users/login">Login here</a></p>
+        <div style="grid-column: 1 / -1;">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 symbol" required>
+          <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem;">
+            Requirements: At least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, 1 symbol
+          </p>
+        </div>
+      </div>
+
+      <input type="submit" value="Create Account" class="btn" style="width: 100%; margin-top: 2rem; text-align: center; padding: 0.75rem; display: block;">
+    </form>
+
+    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light); text-align: center;">
+      <p style="margin: 0; color: var(--text-gray);">
+        Already have an account? 
+        <a href="<%= BASE_URL %>/users/login" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Sign in here</a>
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,57 +1,80 @@
-<h2>Dashboard</h2>
+<div class="content-wrapper">
+  <div class="welcome-message">
+    <h2 style="margin-top: 0; margin-bottom: 0.5rem;">Welcome back, <strong><%= session.username %></strong>! 👋</h2>
+    <p style="margin-bottom: 0; color: #003D7A;">Ready to connect and grow your professional network?</p>
+  </div>
 
-<div class="welcome-message">
-  Welcome, <strong><%= session.username %></strong>!
+  <% if (session.userType === 'student') { %>
+    <h3>📚 Student Dashboard</h3>
+    
+    <div class="grid">
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔍</div>
+          <h4>Discover Alumni</h4>
+        </div>
+        <p>Find experienced alumni mentors from your industry and connect with them to gain valuable insights.</p>
+        <a href="<%= BASE_URL %>/alumni/browse" class="btn" style="width: 100%; text-align: center;">Browse Alumni</a>
+        <a href="<%= BASE_URL %>/alumni/search" class="btn btn-secondary" style="width: 100%; text-align: center;">Advanced Search</a>
+      </div>
+      
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🤝</div>
+          <h4>My Connections</h4>
+        </div>
+        <p>Manage and grow your professional network with accepted connections and pending requests.</p>
+        <a href="<%= BASE_URL %>/connections/my" class="btn" style="width: 100%; text-align: center;">View Connections</a>
+      </div>
+      
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎤</div>
+          <h4>Mock Interviews</h4>
+        </div>
+        <p>Practice with experienced professionals and prepare for your dream job interviews.</p>
+        <a href="<%= BASE_URL %>/interviews/my" class="btn" style="width: 100%; text-align: center;">My Interviews</a>
+      </div>
+      
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👤</div>
+          <h4>My Profile</h4>
+        </div>
+        <p>Keep your profile complete and up-to-date so alumni can find you more easily.</p>
+        <a href="<%= BASE_URL %>/users/profile" class="btn" style="width: 100%; text-align: center;">Edit Profile</a>
+      </div>
+    </div>
+  <% } else { %>
+    <h3>🏢 Alumni Dashboard</h3>
+    
+    <div class="grid">
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📬</div>
+          <h4>Connection Requests</h4>
+        </div>
+        <p>Review incoming connection requests from students eager to learn from your experience.</p>
+        <a href="<%= BASE_URL %>/connections/my" class="btn" style="width: 100%; text-align: center;">View Requests</a>
+      </div>
+      
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎤</div>
+          <h4>My Interviews</h4>
+        </div>
+        <p>Manage your scheduled and completed mock interview sessions with students.</p>
+        <a href="<%= BASE_URL %>/interviews/my" class="btn" style="width: 100%; text-align: center;">My Interviews</a>
+      </div>
+      
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👤</div>
+          <h4>My Profile</h4>
+        </div>
+        <p>Update your professional profile to help students find you and learn about your expertise.</p>
+        <a href="<%= BASE_URL %>/users/profile" class="btn" style="width: 100%; text-align: center;">Edit Profile</a>
+      </div>
+    </div>
+  <% } %>
 </div>
-
-<% if (session.userType === 'student') { %>
-  <h3>Student Dashboard</h3>
-  
-  <div class="grid">
-    <div class="card">
-      <h4>🎓 Quick Actions</h4>
-      <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse Alumni</a>
-      <a href="<%= BASE_URL %>/alumni/search" class="btn btn-secondary">Search Alumni</a>
-    </div>
-    
-    <div class="card">
-      <h4>👥 My Connections</h4>
-      <p>Manage your connections with alumni mentors.</p>
-      <a href="<%= BASE_URL %>/connections/my" class="btn">View Connections</a>
-    </div>
-    
-    <div class="card">
-      <h4>🎤 Mock Interviews</h4>
-      <p>View scheduled and past interviews.</p>
-      <a href="<%= BASE_URL %>/interviews/my" class="btn">My Interviews</a>
-    </div>
-    
-    <div class="card">
-      <h4>👤 My Profile</h4>
-      <p>Update your profile information.</p>
-      <a href="<%= BASE_URL %>/users/profile" class="btn">Edit Profile</a>
-    </div>
-  </div>
-<% } else { %>
-  <h3>Alumni Dashboard</h3>
-  
-  <div class="grid">
-    <div class="card">
-      <h4>📬 Connection Requests</h4>
-      <p>Review and respond to student connection requests.</p>
-      <a href="<%= BASE_URL %>/connections/my" class="btn">View Requests</a>
-    </div>
-    
-    <div class="card">
-      <h4>🎤 My Interviews</h4>
-      <p>View scheduled and completed mock interviews.</p>
-      <a href="<%= BASE_URL %>/interviews/my" class="btn">My Interviews</a>
-    </div>
-    
-    <div class="card">
-      <h4>👤 My Profile</h4>
-      <p>Keep your profile updated to help students find you.</p>
-      <a href="<%= BASE_URL %>/users/profile" class="btn">Edit Profile</a>
-    </div>
-  </div>
-<% } %>

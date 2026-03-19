@@ -1,20 +1,42 @@
-<h2>Login to VocationConnect</h2>
+<div style="max-width: 450px; margin: 2rem auto;">
+  <div class="card" style="text-align: center; margin-bottom: 2rem;">
+    <h2 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--primary-color);">Welcome Back</h2>
+    <p style="color: var(--text-gray);">Sign in to your VocationConnect account</p>
+  </div>
 
-<% if (error) { %>
-    <div class="error">
-        <%= error %>
+  <% if (error) { %>
+    <div class="error" style="margin-bottom: 1.5rem;">
+      ⚠️ <%= error %>
     </div>
-<% } %>
+  <% } %>
 
-<form action="<%= BASE_URL %>/users/loggedin" method="POST">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
+  <div class="card">
+    <form action="<%= BASE_URL %>/users/loggedin" method="POST">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
+      <label for="password" style="margin-top: 1.5rem;">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
 
-    <input type="submit" value="Login">
-</form>
+      <input type="submit" value="Sign In" class="btn" style="width: 100%; margin-top: 2rem; text-align: center; padding: 0.75rem;">
+    </form>
 
-<p>Don't have an account? <a href="<%= BASE_URL %>/users/register">Register here</a>.</p>
-<p>Test credentials: username: <code>john_student</code> or <code>jane_alumni</code>, password: <code>Test123!@#</code></p>
+    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light); text-align: center;">
+      <p style="margin: 0; color: var(--text-gray);">
+        Don't have an account? 
+        <a href="<%= BASE_URL %>/users/register" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Create one here</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="info" style="margin-top: 1.5rem; text-align: center;">
+    <p style="margin: 0.5rem 0; font-size: 0.85rem;"><strong>Demo Credentials:</strong></p>
+    <p style="margin: 0.25rem 0; font-size: 0.85rem;">
+      Student: <code style="background: var(--bg-light); padding: 0.2rem 0.4rem; border-radius: 3px;">john_student</code> / 
+      Alumni: <code style="background: var(--bg-light); padding: 0.2rem 0.4rem; border-radius: 3px;">jane_alumni</code>
+    </p>
+    <p style="margin: 0.25rem 0; font-size: 0.85rem;">
+      Password: <code style="background: var(--bg-light); padding: 0.2rem 0.4rem; border-radius: 3px;">Test123!@#</code>
+    </p>
+  </div>
+</div>

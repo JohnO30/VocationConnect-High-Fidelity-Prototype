@@ -1,51 +1,70 @@
-<h2>My Connections</h2>
+<div class="content-wrapper">
+  <h2 style="margin-bottom: 1.5rem;">🤝 My Connections</h2>
 
-<% if (connections && connections.length > 0) { %>
-  <div class="grid">
-    <% connections.forEach(function(conn) { %>
-      <div class="card">
-        <h3>
-          <% if (session.userType === 'student') { %>
-            <%= conn.first_name %> <%= conn.last_name %>
-          <% } else { %>
-            <%= conn.first_name %> <%= conn.last_name %> (<%= conn.email %>)
-          <% } %>
-        </h3>
-        
-        <% if (session.userType === 'student' && conn.company) { %>
-          <p><strong><%= conn.company %></strong></p>
-          <p><%= conn.job_title %></p>
-        <% } %>
-        
-        <p><strong>Status:</strong> <span class="interview-status status-<%= conn.status %>"><%= conn.status %></span></p>
-        <p><strong>Requested:</strong> <%= new Date(conn.created_at).toLocaleDateString() %></p>
-        
-        <% if (conn.message) { %>
-          <div class="info">
-            <p><strong>Message:</strong> <%= conn.message %></p>
+  <% if (connections && connections.length > 0) { %>
+    <div class="grid">
+      <% connections.forEach(function(conn) { %>
+        <div class="card">
+          <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #0077B5, #0A66C2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0;">👤</div>
+            <div style="flex: 1;">
+              <h3 style="margin: 0 0 0.25rem 0;">
+                <% if (session.userType === 'student') { %>
+                  <%= conn.first_name %> <%= conn.last_name %>
+                <% } else { %>
+                  <%= conn.first_name %> <%= conn.last_name %>
+                <% } %>
+              </h3>
+              
+              <% if (session.userType === 'student' && conn.company) { %>
+                <p style="margin: 0; color: var(--primary-color); font-weight: 600;"><%= conn.job_title %></p>
+                <p style="margin: 0; color: var(--text-gray); font-size: 0.9rem;"><%= conn.company %></p>
+              <% } else if (session.userType === 'alumni') { %>
+                <p style="margin: 0; color: var(--text-gray); font-size: 0.9rem;">📧 <%= conn.email %></p>
+              <% } %>
+            </div>
           </div>
-        <% } %>
-        
-        <div class="card-footer">
-          <% if (session.userType === 'alumni' && conn.status === 'pending') { %>
-            <form action="<%= BASE_URL %>/connections/<%= conn.id %>/accept" method="POST" style="display:inline;">
-              <input type="submit" value="Accept" class="btn btn-success">
-            </form>
-            <form action="<%= BASE_URL %>/connections/<%= conn.id %>/decline" method="POST" style="display:inline;">
-              <input type="submit" value="Decline" class="btn btn-danger">
-            </form>
+          
+          <div style="margin: 1rem 0; padding: 0.75rem; background-color: var(--bg-light); border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
+            <span class="interview-status status-<%= conn.status %>"><%= conn.status %></span>
+            <span style="font-size: 0.85rem; color: var(--text-gray);">Requested: <%= new Date(conn.created_at).toLocaleDateString() %></span>
+          </div>
+          
+          <% if (conn.message) { %>
+            <div class="info" style="margin: 1rem 0;">
+              <p style="margin: 0; font-size: 0.9rem;">
+                <strong style="display: block; margin-bottom: 0.25rem;">💬 Message:</strong>
+                <%= conn.message %>
+              </p>
+            </div>
           <% } %>
           
-          <% if (session.userType === 'student' && conn.status === 'accepted') { %>
-            <a href="<%= BASE_URL %>/alumni/<%= conn.alumni_id %>" class="btn">View Profile</a>
-          <% } %>
+          <div class="card-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <% if (session.userType === 'alumni' && conn.status === 'pending') { %>
+              <form action="<%= BASE_URL %>/connections/<%= conn.id %>/accept" method="POST" style="flex: 1;">
+                <input type="submit" value="Accept" class="btn btn-success" style="width: 100%; text-align: center;">
+              </form>
+              <form action="<%= BASE_URL %>/connections/<%= conn.id %>/decline" method="POST" style="flex: 1;">
+                <input type="submit" value="Decline" class="btn btn-danger" style="width: 100%; text-align: center;">
+              </form>
+            <% } %>
+            
+            <% if (session.userType === 'student' && conn.status === 'accepted') { %>
+              <a href="<%= BASE_URL %>/alumni/<%= conn.alumni_id %>" class="btn" style="flex: 1; text-align: center;">View Profile</a>
+            <% } %>
+          </div>
         </div>
-      </div>
-    <% }); %>
-  </div>
-<% } else { %>
-  <p>No connections found.</p>
-  <% if (session.userType === 'student') { %>
-    <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse Alumni to Connect</a>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="card" style="text-align: center; padding: 2rem;">
+      <p style="font-size: 1.1rem; color: var(--text-gray); margin-top: 0;">📭 No connections found yet.</p>
+      <% if (session.userType === 'student') { %>
+        <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Start building your professional network by connecting with alumni mentors.</p>
+        <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse Alumni to Connect</a>
+      <% } else { %>
+        <p style="color: var(--text-gray);">Connection requests from students will appear here.</p>
+      <% } %>
+    </div>
   <% } %>
-<% } %>
+</div>

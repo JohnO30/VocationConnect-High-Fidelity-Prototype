@@ -1,25 +1,39 @@
-<h2>Browse Alumni</h2>
-
-<p><a href="<%= BASE_URL %>/alumni/search">Advanced Search</a></p>
-
-<% if (alumni && alumni.length > 0) { %>
-  <div class="grid">
-    <% alumni.forEach(function(alum) { %>
-      <div class="card alumni-card">
-        <h3><%= alum.first_name %> <%= alum.last_name %></h3>
-        <p class="company"><%= alum.company || 'Company not specified' %></p>
-        <p class="job-title"><%= alum.job_title || 'Job title not specified' %></p>
-        <p><strong>Industry:</strong> <%= alum.industry || 'N/A' %></p>
-        <p><strong>Experience:</strong> <%= alum.years_experience || 0 %> years</p>
-        <% if (alum.available_for_mock) { %>
-          <span class="badge badge-success">Available for Interviews</span>
-        <% } %>
-        <div class="card-footer">
-          <a href="<%= BASE_URL %>/alumni/<%= alum.id %>" class="btn btn-primary">View Profile</a>
-        </div>
-      </div>
-    <% }); %>
+<div class="content-wrapper">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h2 style="margin: 0;">🔍 Browse Alumni</h2>
+    <a href="<%= BASE_URL %>/alumni/search" class="btn btn-secondary">Advanced Search</a>
   </div>
-<% } else { %>
-  <p>No alumni profiles found.</p>
-<% } %>
+
+  <% if (alumni && alumni.length > 0) { %>
+    <div class="grid">
+      <% alumni.forEach(function(alum) { %>
+        <div class="card alumni-card" style="padding: 1.5rem; text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
+          
+          <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;"><%= alum.first_name %> <%= alum.last_name %></h3>
+          
+          <p class="company" style="margin: 0.5rem 0; font-weight: 600; color: var(--primary-color);"><%= alum.company || 'Company not specified' %></p>
+          <p class="job-title" style="margin: 0 0 0.75rem 0; color: var(--text-gray); font-size: 0.9rem;"><%= alum.job_title || 'Job title not specified' %></p>
+          
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-gray);">
+            <div>📊 <strong><%= alum.industry || 'N/A' %></strong> Industry</div>
+            <div>⏳ <strong><%= alum.years_experience || 0 %></strong> years experience</div>
+          </div>
+          
+          <% if (alum.available_for_mock) { %>
+            <span class="badge badge-success" style="display: block; margin-bottom: 1rem; justify-content: center;">✓ Available for Interviews</span>
+          <% } %>
+          
+          <div class="card-footer" style="border-top: 1px solid var(--border-light); margin: 0 -1.5rem -1.5rem; padding: 1rem; padding-top: 1rem;">
+            <a href="<%= BASE_URL %>/alumni/<%= alum.id %>" class="btn btn-primary" style="display: block; text-align: center;">View Full Profile</a>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="card" style="text-align: center; padding: 3rem;">
+      <p style="font-size: 1.1rem; color: var(--text-gray);">📭 No alumni profiles found.</p>
+      <a href="<%= BASE_URL %>/alumni/search" class="btn">Try Advanced Search</a>
+    </div>
+  <% } %>
+</div>

@@ -1,21 +1,33 @@
-<h2>Search Alumni</h2>
+<div class="content-wrapper">
+  <div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin-top: 0; margin-bottom: 1.5rem;">🔍 Search Alumni</h2>
 
-<form action="<%= BASE_URL %>/alumni/search" method="POST">
-    <label for="keyword">Search by keyword:</label>
-    <input type="text" id="keyword" name="keyword" placeholder="Name, company, job title, skills...">
-    
-    <label for="industry">Filter by industry:</label>
-    <select id="industry" name="industry">
-        <option value="all">All Industries</option>
-        <option value="Technology">Technology</option>
-        <option value="Finance">Finance</option>
-        <option value="Healthcare">Healthcare</option>
-        <option value="Education">Education</option>
-        <option value="Consulting">Consulting</option>
-        <option value="Other">Other</option>
-    </select>
-    
-    <input type="submit" value="Search">
-</form>
+    <form action="<%= BASE_URL %>/alumni/search" method="POST" style="display: grid; gradient-template-columns: 1fr; gap: 1.5rem;">
+      <div>
+        <label for="keyword">Search by Name, Company, or Skills:</label>
+        <input type="text" id="keyword" name="keyword" placeholder="e.g., John Smith, Google, Machine Learning...">
+      </div>
+      
+      <div>
+        <label for="industry">Filter by Industry:</label>
+        <select id="industry" name="industry">
+          <option value="all">All Industries</option>
+          <option value="Technology">Technology</option>
+          <option value="Finance">Finance</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Education">Education</option>
+          <option value="Consulting">Consulting</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      
+      <input type="submit" value="Search Alumni" class="btn" style="align-self: flex-start;">
+    </form>
+  </div>
 
-<p><a href="<%= BASE_URL %>/alumni/browse">Browse all alumni</a></p>
+  <div style="text-align: center;">
+    <p style="color: var(--text-gray); margin: 0;">
+      Or <a href="<%= BASE_URL %>/alumni/browse" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">browse all alumni</a>
+    </p>
+  </div>
+</div>

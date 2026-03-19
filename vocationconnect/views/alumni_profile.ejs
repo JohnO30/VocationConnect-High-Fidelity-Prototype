@@ -1,49 +1,102 @@
-<!-- Display alumni's basic information -->
-<h2><%= alumni.first_name %> <%= alumni.last_name %></h2>
+<!-- Alumni Profile Header -->
+<div class="content-wrapper">
+  <div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; align-items: flex-start; gap: 2rem; margin-bottom: 1.5rem;">
+      <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #0077B5, #0A66C2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3.5rem; flex-shrink: 0;">👨‍💼</div>
+      <div style="flex: 1;">
+        <h2 style="margin-top: 0; margin-bottom: 0.5rem;"><%= alumni.first_name %> <%= alumni.last_name %></h2>
+        
+        <div style="margin-bottom: 1rem;">
+          <p style="margin: 0.5rem 0; font-weight: 600; color: var(--primary-color); font-size: 1.05rem;">
+            <%= alumni.job_title || 'Professional' %>
+          </p>
+          <p style="margin: 0.5rem 0; color: var(--text-gray); font-size: 0.95rem;">
+            📍 <%= alumni.company || 'Company not specified' %>
+          </p>
+        </div>
+        
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <div>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-light);">INDUSTRY</p>
+            <p style="margin: 0.25rem 0 0 0; font-weight: 600;"><%= alumni.industry || 'N/A' %></p>
+          </div>
+          <div>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-light);">EXPERIENCE</p>
+            <p style="margin: 0.25rem 0 0 0; font-weight: 600;"><%= alumni.years_experience || 0 %> years</p>
+          </div>
+          <div>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-light);">GRADUATED</p>
+            <p style="margin: 0.25rem 0 0 0; font-weight: 600;"><%= alumni.graduation_year %></p>
+          </div>
+        </div>
+        
+        <!-- Show availability badge for mock interviews -->
+        <% if (alumni.available_for_mock) { %>
+          <span class="badge badge-success" style="margin-top: 0.5rem;">✓ Available for Mock Interviews</span>
+        <% } %>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-  <p class="company"><%= alumni.company || 'Company not specified' %></p>
-  <p class="job-title"><%= alumni.job_title || 'Job title not specified' %></p>
-  <p><strong>Industry:</strong> <%= alumni.industry || 'N/A' %></p>
-  <p><strong>Experience:</strong> <%= alumni.years_experience || 0 %> years</p>
-  <p><strong>Graduation Year:</strong> <%= alumni.graduation_year %></p>
-  
-  <!-- Display bio if available -->
+  <!-- Bio Section -->
   <% if (alumni.bio) { %>
-    <h4>Bio</h4>
-    <p><%= alumni.bio %></p>
-  <% } %>
-  
-  <!-- Display skills if available -->
-  <% if (alumni.skills) { %>
-    <h4>Skills</h4>
-    <p><%= alumni.skills %></p>
-  <% } %>
-  
-  <!-- Show availability badge for mock interviews -->
-  <% if (alumni.available_for_mock) { %>
-    <span class="badge badge-success">Available for Mock Interviews</span>
-  <% } %>
-</div>
-
-<!-- Show connection options for students -->
-<% if (session.userType === 'student') { %>
-  <% if (!connection) { %>
-    <!-- Display connection request form if no existing connection -->
-    <h3>Send Connection Request</h3>
-    <form action="<%= BASE_URL %>/connections/request" method="POST">
-      <input type="hidden" name="alumni_id" value="<%= alumni.id %>">
-      <label for="message">Message:</label>
-      <textarea id="message" name="message" required>Hi <%= alumni.first_name %>, I would love to connect and learn more about your experience!</textarea>
-      <input type="submit" value="Send Request">
-    </form>
-  <% } else { %>
-    <!-- Display connection status and interview scheduling option -->
-    <div class="info">
-      <p><strong>Connection Status:</strong> <span class="interview-status status-<%= connection.status %>"><%= connection.status %></span></p>
-      <% if (connection.status === 'accepted' && alumni.available_for_mock) { %>
-        <a href="<%= BASE_URL %>/interviews/schedule/<%= alumni.id %>" class="btn btn-success">Schedule Mock Interview</a>
-      <% } %>
+    <div class="card">
+      <h3 style="margin-top: 0;">About</h3>
+      <p><%= alumni.bio %></p>
     </div>
   <% } %>
-<% } %>
+
+  <!-- Skills Section -->
+  <% if (alumni.skills) { %>
+    <div class="card">
+      <h3 style="margin-top: 0;">Skills & Expertise</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        <% alumni.skills.split(',').slice(0, 10).forEach(skill => { %>
+          <span class="badge badge-primary" style="margin: 0;"><%= skill.trim() %></span>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Connection Section -->
+  <% if (session.userType === 'student') { %>
+    <% if (!connection) { %>
+      <!-- Display connection request form if no existing connection -->
+      <div class="card">
+        <h3 style="margin-top: 0;">📬 Send Connection Request</h3>
+        <p>Reach out to <%= alumni.first_name %> to start building your professional relationship.</p>
+        
+        <form action="<%= BASE_URL %>/connections/request" method="POST">
+          <input type="hidden" name="alumni_id" value="<%= alumni.id %>">
+          
+          <label for="message">Message (optional):</label>
+          <textarea id="message" name="message" placeholder="Hi <%= alumni.first_name %>, I'd love to connect and learn from your experience. I'm particularly interested in..."><% if (!message) { %>Hi <%= alumni.first_name %>, I would love to connect and learn more about your experience!<% } else { %><%= message %><% } %></textarea>
+          
+          <input type="submit" value="Send Connection Request" class="btn" style="margin-top: 1rem;">
+        </form>
+      </div>
+    <% } else { %>
+      <!-- Display connection status and interview scheduling option -->
+      <div class="card">
+        <h3 style="margin-top: 0;">Connection Status</h3>
+        
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+          <% if (connection.status === 'accepted') { %>
+            <span class="badge badge-success">✓ Connected</span>
+            <p style="margin: 0;">You are connected with <%= alumni.first_name %></p>
+          <% } else if (connection.status === 'pending') { %>
+            <span class="badge badge-warning">⏳ Pending</span>
+            <p style="margin: 0;">Awaiting <%= alumni.first_name %>'s response</p>
+          <% } else if (connection.status === 'declined') { %>
+            <span class="badge badge-danger">✗ Declined</span>
+            <p style="margin: 0;">Connection request was declined</p>
+          <% } %>
+        </div>
+        
+        <% if (connection.status === 'accepted' && alumni.available_for_mock) { %>
+          <a href="<%= BASE_URL %>/interviews/schedule/<%= alumni.id %>" class="btn btn-success" style="display: inline-block;">Schedule Mock Interview 🎤</a>
+        <% } %>
+      </div>
+    <% } %>
+  <% } %>
+</div>
