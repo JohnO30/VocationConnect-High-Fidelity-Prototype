@@ -30,20 +30,40 @@ header {
   background-color: var(--primary-color);
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Logo Section */
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 0 0 auto;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
 }
 
 header h1 {
-  color: var(--secondary-color);
+  color: white;
   font-size: 2rem;
   font-weight: bold;
   display: inline-block;
   margin-bottom: 0;
+  margin-left: 0.5rem;
 }
 
 nav {
   display: inline-block;
-  float: right;
   margin-top: 0.5rem;
+  flex: 1 1 auto;
+  text-align: right;
 }
 
 nav a {
@@ -60,9 +80,9 @@ nav a:hover {
 
 header p {
   color: #ecf0f1;
-  float: right;
-  clear: right;
   margin-top: 0.5rem;
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 
 header p strong {

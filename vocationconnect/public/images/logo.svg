@@ -1,0 +1,14 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Orange Hexagon -->
+  <polygon points="200,50 340,125 340,275 200,350 60,275 60,125" 
+           fill="none" stroke="#FF9500" stroke-width="20" stroke-linejoin="round"/>
+  
+  <!-- Dark Blue Person/Chevron Shape -->
+  <g fill="#003859">
+    <!-- Circle (head) -->
+    <circle cx="200" cy="130" r="40"/>
+    
+    <!-- Chevron (body) -->
+    <polygon points="200,190 260,260 200,240 140,260"/>
+  </g>
+</svg>
