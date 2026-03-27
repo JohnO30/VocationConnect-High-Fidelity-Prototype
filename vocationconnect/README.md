@@ -98,8 +98,8 @@ vocationconnect/
 
 3. **Set up the database**
    ```bash
-   mysql -u root -p < createdb.sql
-   mysql -u root -p < insert_test_data.sql
+   mysql -u root -p < init.sql
+   mysql -u root -p < seed.sql
    ```
 
 4. **Configure environment variables**
