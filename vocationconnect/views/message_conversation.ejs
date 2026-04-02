@@ -1,0 +1,29 @@
+<div class="content-wrapper">
+  <h2 style="margin-bottom: 1rem;">Conversation with <%= otherUser.first_name %> <%= otherUser.last_name %></h2>
+
+  <div class="card" style="padding: 1rem; margin-bottom: 1.5rem;">
+    <div class="scroll-area" style="max-height: 450px; overflow-y: auto;">
+      <% if (messages && messages.length > 0) { %>
+        <% messages.forEach(function(message) { %>
+          <div style="margin-bottom: 1rem;">
+            <p style="margin: 0 0 0.25rem 0; font-size: 0.9rem; color: var(--text-gray);">
+              <strong><%= message.first_name %> <%= message.last_name %></strong>
+              <span style="font-size: 0.8rem; color: #666;">• <%= new Date(message.sent_at).toLocaleString() %></span>
+            </p>
+            <div style="padding: 0.75rem; background: #f8fafc; border-radius: 8px; white-space: pre-wrap;"><%= message.message_text %></div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p style="color: var(--text-gray);">No messages yet. Send the first message below.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <form action="<%= BASE_URL %>/messages/<%= conversation.id %>" method="POST">
+    <textarea name="message_text" rows="4" placeholder="Write a message..." style="width: 100%; padding: 0.9rem; border: 1px solid #d1d5db; border-radius: 8px; resize: vertical; font-family: inherit;"></textarea>
+    <div style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <button type="submit" class="btn btn-success">Send Message</button>
+      <a href="<%= BASE_URL %>/messages/my" class="btn">Back to Messages</a>
+    </div>
+  </form>
+</div>

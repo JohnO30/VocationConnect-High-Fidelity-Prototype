@@ -1,0 +1,38 @@
+<div class="content-wrapper">
+  <h2 style="margin-bottom: 1.5rem;">✉️ Messages</h2>
+
+  <% if (conversations && conversations.length > 0) { %>
+    <div class="grid">
+      <% conversations.forEach(function(conv) { %>
+        <div class="card">
+          <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #00897B, #43A047); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0;">💬</div>
+            <div style="flex: 1;">
+              <h3 style="margin: 0 0 0.25rem 0;"><%= conv.first_name %> <%= conv.last_name %></h3>
+              <% if (conv.company) { %>
+                <p style="margin: 0; color: var(--primary-color); font-weight: 600;"><%= conv.job_title %></p>
+                <p style="margin: 0; color: var(--text-gray); font-size: 0.9rem;"><%= conv.company %></p>
+              <% } else if (conv.email) { %>
+                <p style="margin: 0; color: var(--text-gray); font-size: 0.9rem;">📧 <%= conv.email %></p>
+              <% } %>
+            </div>
+          </div>
+
+          <div style="margin: 1rem 0; padding: 0.75rem; background-color: var(--bg-light); border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.85rem; color: var(--text-gray);">Active since <%= new Date(conv.updated_at).toLocaleDateString() %></span>
+          </div>
+
+          <div class="card-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="<%= BASE_URL %>/messages/<%= conv.id %>" class="btn" style="flex: 1; text-align: center;">Open Chat</a>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="card" style="text-align: center; padding: 2rem;">
+      <p style="font-size: 1.1rem; color: var(--text-gray); margin-top: 0;">No active conversations yet.</p>
+      <p style="color: var(--text-gray);">Accepted connections will appear here so you can message your network.</p>
+      <a href="<%= BASE_URL %>/connections/my" class="btn">View Connections</a>
+    </div>
+  <% } %>
+</div>

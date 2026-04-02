@@ -44,12 +44,6 @@ VALUES
   (2, 'Explain the difference between var, let, and const in JavaScript.', 180),
   (2, 'How would you design a URL shortening service like bit.ly?', 600);
 
--- Chat messages
-INSERT INTO chat_messages (interview_id, sender_id, message_text, sent_at)
-VALUES
-  (2, 1, 'Thank you for taking the time to interview me!', '2026-01-20 10:05:00'),
-  (2, 2, 'You are welcome! You did great today.', '2026-01-20 10:06:00');
-
 -- Interview notes
 INSERT INTO interview_notes (interview_id, user_id, note_text)
 VALUES

@@ -80,6 +80,7 @@ const userRoutes = require('./routes/users');
 const alumniRoutes = require('./routes/alumni');
 const interviewRoutes = require('./routes/interviews');
 const connectionRoutes = require('./routes/connections');
+const messageRoutes = require('./routes/messages');
 
 // Mount route handlers with base path
 app.use(BASE_PATH + '/', mainRoutes);
@@ -87,6 +88,7 @@ app.use(BASE_PATH + '/users', userRoutes);
 app.use(BASE_PATH + '/alumni', alumniRoutes);
 app.use(BASE_PATH + '/interviews', interviewRoutes);
 app.use(BASE_PATH + '/connections', connectionRoutes);
+app.use(BASE_PATH + '/messages', messageRoutes);
 
 // Start the server
 app.listen(port, () => {

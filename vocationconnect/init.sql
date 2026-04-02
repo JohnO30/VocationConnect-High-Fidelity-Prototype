@@ -53,6 +53,19 @@ CREATE TABLE IF NOT EXISTS connections (
   INDEX idx_alumni (alumni_id)
 );
 
+-- Direct messages for accepted connections
+CREATE TABLE IF NOT EXISTS direct_messages (
+  id             INT AUTO_INCREMENT,
+  connection_id  INT NOT NULL,
+  sender_id      INT NOT NULL,
+  message_text   TEXT NOT NULL,
+  sent_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(id),
+  FOREIGN KEY (connection_id) REFERENCES connections(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_connection (connection_id)
+);
+
 -- Mock interviews
 CREATE TABLE IF NOT EXISTS mock_interviews (
   id              INT AUTO_INCREMENT,
