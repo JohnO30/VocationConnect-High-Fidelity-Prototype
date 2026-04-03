@@ -24,8 +24,15 @@
             <span class="badge badge-success" style="display: block; margin-bottom: 1rem; justify-content: center;">✓ Available for Interviews</span>
           <% } %>
           
-          <div class="card-footer" style="border-top: 1px solid var(--border-light); margin: 0 -1.5rem -1.5rem; padding: 1rem; padding-top: 1rem;">
+          <div class="card-footer" style="border-top: 1px solid var(--border-light); margin: 0 -1.5rem -1.5rem; padding: 1rem; padding-top: 1rem; display: grid; gap: 0.5rem;">
             <a href="<%= BASE_URL %>/alumni/<%= alum.id %>" class="btn btn-primary" style="display: block; text-align: center;">View Full Profile</a>
+            <% if (session.userType === 'student') { %>
+              <form action="<%= BASE_URL %>/connections/request" method="POST" style="margin:0;">
+                <input type="hidden" name="alumni_id" value="<%= alum.id %>">
+                <input type="hidden" name="message" value="Hi <%= alum.first_name %>, I would love to connect and learn more about your experience.">
+                <input type="submit" value="Request Connection" class="btn" style="display: block; text-align: center;">
+              </form>
+            <% } %>
           </div>
         </div>
       <% }); %>

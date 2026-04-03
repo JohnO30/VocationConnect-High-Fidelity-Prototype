@@ -48,11 +48,16 @@
                 <input type="submit" value="Decline" class="btn btn-danger" style="width: 100%; text-align: center;">
               </form>
             <% } %>
+
+            <% if (session.userType === 'student' && conn.status === 'pending') { %>
+              <form action="<%= BASE_URL %>/connections/<%= conn.id %>/cancel" method="POST" style="flex: 1;">
+                <input type="submit" value="Cancel Request" class="btn btn-secondary" style="width: 100%; text-align: center;">
+              </form>
+            <% } %>
             
             <% if (conn.status === 'accepted') { %>
               <a href="<%= BASE_URL %>/messages/<%= conn.id %>" class="btn" style="flex: 1; text-align: center;">Message</a>
             <% } %>
-
             <% if (session.userType === 'student' && conn.status === 'accepted') { %>
               <a href="<%= BASE_URL %>/alumni/<%= conn.alumni_id %>" class="btn" style="flex: 1; text-align: center;">View Profile</a>
             <% } %>

@@ -108,11 +108,20 @@ router.get('/:id', redirectLogin, (req, res, next) => {
     
     db.query(connSql, [req.session.userId, alumniId], (err2, connResults) => {
       if (err2) return next(err2);
-      
+
+      const status = req.query.status;
+      let flash = null;
+      if (status === 'sent') {
+        flash = { type: 'success', message: 'Connection request sent successfully.' };
+      } else if (status === 'exists') {
+        flash = { type: 'warning', message: 'You already have a connection request for this alumni.' };
+      }
+
       res.render('alumni_profile', {
         title: results[0].first_name + ' ' + results[0].last_name,
         alumni: results[0],
-        connection: connResults.length > 0 ? connResults[0] : null
+        connection: connResults.length > 0 ? connResults[0] : null,
+        flash: flash
       });
     });
   });

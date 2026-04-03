@@ -53,33 +53,51 @@ router.post('/request', redirectLogin, (req, res, next) => {
   if (req.session.userType !== 'student') {
     return res.status(403).send('Only students can send connection requests');
   }
-  
+
   const studentId = req.session.userId;
   const alumniId = parseInt(req.body.alumni_id);
-  const message = req.sanitize(req.body.message);
-  
-  // Check if connection already exists
-  const checkSql = `
-    SELECT * FROM connections 
-    WHERE student_id = ? AND alumni_id = ?
-  `;
-  
-  db.query(checkSql, [studentId, alumniId], (err, results) => {
+  const message = req.sanitize(req.body.message || '');
+  const baseUrl = (req.app.locals.BASE_URL || '');
+
+  if (!alumniId || isNaN(alumniId)) {
+    return res.status(400).send('Invalid alumni ID');
+  }
+
+  if (alumniId === studentId) {
+    return res.status(400).send('You cannot send a connection request to yourself.');
+  }
+
+  const userSql = `SELECT user_type FROM users WHERE id = ?`;
+  db.query(userSql, [alumniId], (err, userResults) => {
     if (err) return next(err);
-    
-    if (results.length > 0) {
-      return res.send('Connection request already exists. <a href="' + (req.app.locals.BASE_URL || '') + '/connections/my">View connections</a>');
+
+    if (!userResults || userResults.length === 0 || userResults[0].user_type !== 'alumni') {
+      return res.status(404).send('Alumni user not found');
     }
-    
-    const sql = `
-      INSERT INTO connections (student_id, alumni_id, message)
-      VALUES (?, ?, ?)
+
+    // Check if connection already exists
+    const checkSql = `
+      SELECT * FROM connections 
+      WHERE student_id = ? AND alumni_id = ?
     `;
-    
-    db.query(sql, [studentId, alumniId, message], (err2) => {
+
+    db.query(checkSql, [studentId, alumniId], (err2, connResults) => {
       if (err2) return next(err2);
-      
-      res.send('Connection request sent! <a href="' + (req.app.locals.BASE_URL || '') + '/connections/my">View connections</a>');
+
+      if (connResults.length > 0) {
+        return res.redirect(baseUrl + '/alumni/' + alumniId + '?status=exists');
+      }
+
+      const sql = `
+        INSERT INTO connections (student_id, alumni_id, message)
+        VALUES (?, ?, ?)
+      `;
+
+      db.query(sql, [studentId, alumniId, message], (err3) => {
+        if (err3) return next(err3);
+
+        return res.redirect(baseUrl + '/alumni/' + alumniId + '?status=sent');
+      });
     });
   });
 });
@@ -122,6 +140,32 @@ router.post('/:id/decline', redirectLogin, (req, res, next) => {
   
   db.query(sql, [connectionId, alumniId], (err) => {
     if (err) return next(err);
+    res.redirect((req.app.locals.BASE_URL || '') + '/connections/my');
+  });
+});
+
+// Cancel connection request
+router.post('/:id/cancel', redirectLogin, (req, res, next) => {
+  if (req.session.userType !== 'student') {
+    return res.status(403).send('Only students can cancel connection requests');
+  }
+
+  const connectionId = parseInt(req.params.id);
+  const studentId = req.session.userId;
+
+  const sql = `
+    UPDATE connections
+    SET status = 'declined', updated_at = NOW()
+    WHERE id = ? AND student_id = ? AND status = 'pending'
+  `;
+
+  db.query(sql, [connectionId, studentId], (err, result) => {
+    if (err) return next(err);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send('No pending connection request found to cancel');
+    }
+
     res.redirect((req.app.locals.BASE_URL || '') + '/connections/my');
   });
 });
