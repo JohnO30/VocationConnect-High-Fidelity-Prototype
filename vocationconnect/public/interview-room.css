@@ -75,7 +75,7 @@ body.interview-room {
 .dashboard-container {
     flex: 1;
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 0.25fr;
     gap: 15px;
     padding: 15px;
     min-height: 0;
@@ -88,7 +88,7 @@ body.interview-room {
 }
 
 .video-stage {
-    flex: 3;
+    flex: 1;
     background: var(--bg-panel);
     border: 1px solid var(--border);
     position: relative;
@@ -96,7 +96,7 @@ body.interview-room {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    min-height: 400px;
+    min-height: 0;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
@@ -141,12 +141,13 @@ body.interview-room {
 }
 
 .question-card {
-    flex: 1;
+    flex: 0;
     background: var(--bg-panel);
     border: 1px solid var(--border);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    display: none;
 }
 
 .question-card h4 {

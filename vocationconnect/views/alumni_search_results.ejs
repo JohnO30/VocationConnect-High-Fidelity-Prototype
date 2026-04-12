@@ -1,54 +1,139 @@
 <div class="content-wrapper">
-  <h2>🔍 Search Results</h2>
+  <h2 style="margin-bottom: 1.5rem;">🔍 Search Results</h2>
 
-  <div class="card" style="margin-bottom: 1.5rem; background-color: var(--bg-light);">
-    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-      <% if (keyword) { %>
-        <div>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text-light);">KEYWORD</p>
-          <p style="margin: 0.25rem 0 0 0; font-weight: 600;">"<%= keyword %>"</p>
+  <!-- Search Filters Summary Card -->
+  <div class="card" style="margin-bottom: 1.5rem; background-color: var(--bg-light); padding: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="margin: 0; font-size: 1rem;">Active Filters</h3>
+      <a href="<%= BASE_URL %>/alumni/search" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">← New Search</a>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.9rem;">
+      <% if (searchParams.keyword) { %>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="background-color: var(--primary-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 500;">
+            📝 "<%= searchParams.keyword %>"
+          </span>
         </div>
       <% } %>
-      <% if (industry && industry !== 'all') { %>
-        <div>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text-light);">INDUSTRY</p>
-          <p style="margin: 0.25rem 0 0 0; font-weight: 600;"><%= industry %></p>
+      
+      <% if (searchParams.industry && searchParams.industry !== 'all') { %>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="background-color: var(--secondary-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 500;">
+            🏢 <%= searchParams.industry %>
+          </span>
+        </div>
+      <% } %>
+      
+      <% if (searchParams.minExperience > 0 || searchParams.maxExperience < 100) { %>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="background-color: var(--warning-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 500;">
+            ⏳ <%= searchParams.minExperience %>-<%= searchParams.maxExperience %> years
+          </span>
+        </div>
+      <% } %>
+      
+      <% if (searchParams.minGradYear > 1990 || searchParams.maxGradYear < currentYear) { %>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="background-color: var(--success-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 500;">
+            🎓 <%= searchParams.minGradYear %>-<%= searchParams.maxGradYear %>
+          </span>
+        </div>
+      <% } %>
+      
+      <% if (searchParams.availabilityOnly) { %>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="background-color: var(--success-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 500;">
+            💬 Interview Available
+          </span>
         </div>
       <% } %>
     </div>
   </div>
 
+  <!-- Results Summary and Sort Options -->
   <% if (alumni && alumni.length > 0) { %>
-    <div class="success" style="margin-bottom: 1.5rem; background-color: #E6F7ED; border-left: 4px solid var(--success-color);">
-      ✓ Found <strong><%= alumni.length %></strong> <%= alumni.length === 1 ? 'alumnus' : 'alumni' %> matching your criteria
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+      <div class="success" style="background-color: #E6F7ED; border-left: 4px solid var(--success-color); margin: 0; padding: 1rem;">
+        ✓ Found <strong><%= alumni.length %></strong> <%= alumni.length === 1 ? 'alumnus' : 'alumni' %> matching your criteria
+      </div>
+      
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <label for="sortSelect" style="font-weight: 600; margin: 0;">Sort by:</label>
+        <select id="sortSelect" style="padding: 0.5rem; border: 1px solid var(--border-light); border-radius: 4px; cursor: pointer;">
+          <option value="name" <%= searchParams.sortBy === 'name' ? 'selected' : '' %>>Name (A-Z)</option>
+          <option value="experience" <%= searchParams.sortBy === 'experience' ? 'selected' : '' %>>Experience (Most to Least)</option>
+          <option value="graduation" <%= searchParams.sortBy === 'graduation' ? 'selected' : '' %>>Graduation Year (Most Recent)</option>
+          <option value="company" <%= searchParams.sortBy === 'company' ? 'selected' : '' %>>Company (A-Z)</option>
+        </select>
+      </div>
     </div>
     
+    <!-- Results Grid -->
     <div class="grid">
       <% alumni.forEach(function(alum) { %>
-        <div class="card alumni-card" style="padding: 1.5rem; text-align: center;">
+        <div class="card alumni-card" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column;">
+          <!-- Avatar -->
           <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
           
-          <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;"><%= alum.first_name %> <%= alum.last_name %></h3>
+          <!-- Name -->
+          <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 700;">
+            <%= alum.first_name %> <%= alum.last_name %>
+          </h3>
           
-          <p class="company" style="margin: 0.5rem 0; font-weight: 600; color: var(--primary-color);"><%= alum.company || 'Company not specified' %></p>
-          <p class="job-title" style="margin: 0 0 0.75rem 0; color: var(--text-gray); font-size: 0.9rem;"><%= alum.job_title || 'Job title not specified' %></p>
+          <!-- Company and Job Title -->
+          <p class="company" style="margin: 0.5rem 0; font-weight: 600; color: var(--primary-color); font-size: 0.95rem;">
+            <%= alum.company || 'Company not specified' %>
+          </p>
+          <p class="job-title" style="margin: 0 0 0.75rem 0; color: var(--text-gray); font-size: 0.9rem;">
+            <%= alum.job_title || 'Job title not specified' %>
+          </p>
           
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-gray);">
-            <div>📊 <strong><%= alum.industry || 'N/A' %></strong> Industry</div>
+          <!-- Stats -->
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-gray); flex-grow: 1;">
+            <div>🏢 <strong><%= alum.industry || 'N/A' %></strong></div>
             <div>⏳ <strong><%= alum.years_experience || 0 %></strong> years experience</div>
+            <% if (alum.graduation_year) { %>
+              <div>🎓 Graduated <strong><%= alum.graduation_year %></strong></div>
+            <% } %>
           </div>
           
-          <% if (alum.available_for_mock) { %>
-            <span class="badge badge-success" style="display: block; margin-bottom: 1rem; justify-content: center;">✓ Available for Interviews</span>
+          <!-- Skills Preview -->
+          <% if (alum.skills) { %>
+            <div style="margin-bottom: 1rem; text-align: left;">
+              <p style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: var(--text-light); font-weight: 600;">SKILLS</p>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <% alum.skills.split(',').slice(0, 3).forEach(skill => { %>
+                  <span style="background-color: var(--bg-light); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid var(--border-light);">
+                    <%= skill.trim() %>
+                  </span>
+                <% }); %>
+                <% if (alum.skills.split(',').length > 3) { %>
+                  <span style="padding: 0.25rem 0.5rem; font-size: 0.8rem; color: var(--text-light);">
+                    +<%= alum.skills.split(',').length - 3 %> more
+                  </span>
+                <% } %>
+              </div>
+            </div>
           <% } %>
           
+          <!-- Availability Badge -->
+          <% if (alum.available_for_mock) { %>
+            <span class="badge badge-success" style="display: block; margin-bottom: 1rem; justify-content: center; background-color: #E6F7ED; color: var(--success-color); padding: 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+              ✓ Available for Interviews
+            </span>
+          <% } %>
+          
+          <!-- Action Buttons -->
           <div class="card-footer" style="border-top: 1px solid var(--border-light); margin: 0 -1.5rem -1.5rem; padding: 1rem; padding-top: 1rem; display: grid; gap: 0.5rem;">
-            <a href="<%= BASE_URL %>/alumni/<%= alum.id %>" class="btn btn-primary" style="display: block; text-align: center;">View Full Profile</a>
-            <% if (session.userType === 'student') { %>
+            <a href="<%= BASE_URL %>/alumni/<%= alum.id %>" class="btn btn-primary" style="display: block; text-align: center; padding: 0.75rem; text-decoration: none; margin: 0;">
+              View Full Profile →
+            </a>
+            <% if (session && session.userType === 'student') { %>
               <form action="<%= BASE_URL %>/connections/request" method="POST" style="margin:0;">
                 <input type="hidden" name="alumni_id" value="<%= alum.id %>">
-                <input type="hidden" name="message" value="Hi <%= alum.first_name %>, I would love to connect and learn more about your experience.">
-                <input type="submit" value="Request Connection" class="btn" style="display: block; text-align: center;">
+                <input type="hidden" name="message" value="Hi <%= alum.first_name %>, I would love to connect and learn more about your experience in <%= alum.industry || 'your field' %>.">
+                <input type="submit" value="💬 Request Connection" class="btn" style="display: block; text-align: center; width: 100%; margin: 0; padding: 0.75rem;">
               </form>
             <% } %>
           </div>
@@ -56,19 +141,56 @@
       <% }); %>
     </div>
   <% } else { %>
+    <!-- No Results Message -->
     <div class="card" style="text-align: center; padding: 3rem;">
-      <p style="font-size: 1.1rem; color: var(--text-gray); margin-top: 0;">🔍 No alumni found matching your criteria.</p>
-      <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Try adjusting your search keywords or industry filters.</p>
-      <a href="<%= BASE_URL %>/alumni/search" class="btn btn-secondary" style="margin-right: 0.5rem;">New Search</a>
-      <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse All Alumni</a>
+      <p style="font-size: 1.3rem; margin-top: 0; margin-bottom: 0.5rem;">🔍 No alumni found</p>
+      <p style="font-size: 1rem; color: var(--text-gray); margin-bottom: 1.5rem;">
+        Try adjusting your search keywords or filters to expand your results.
+      </p>
+      <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+        <a href="<%= BASE_URL %>/alumni/search" class="btn btn-secondary">← Refine Search</a>
+        <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse All Alumni</a>
+      </div>
     </div>
   <% } %>
 
-  <% if (alumni && alumni.length > 0) { %>
-    <div style="text-align: center; margin-top: 2rem; padding: 1rem; background-color: var(--bg-light); border-radius: 8px;">
-      <p style="margin: 0; color: var(--text-gray);">
-        Want to refine your search? <a href="<%= BASE_URL %>/alumni/search" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Try a new search</a>
-      </p>
-    </div>
-  <% } %>
+  <!-- New Search CTA -->
+  <div style="text-align: center; margin-top: 2rem; padding: 1rem; background-color: var(--bg-light); border-radius: 8px;">
+    <p style="margin: 0; color: var(--text-gray);">
+      Want to refine your search? <a href="<%= BASE_URL %>/alumni/search" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">← Try advanced search again</a>
+    </p>
+  </div>
 </div>
+
+<script>
+  // Handle sort dropdown changes
+  const sortSelect = document.getElementById('sortSelect');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', function() {
+      const formData = new FormData();
+      formData.append('keyword', '<%= searchParams.keyword %>');
+      formData.append('industry', '<%= searchParams.industry %>');
+      formData.append('minExperience', '<%= searchParams.minExperience %>');
+      formData.append('maxExperience', '<%= searchParams.maxExperience %>');
+      formData.append('minGradYear', '<%= searchParams.minGradYear %>');
+      formData.append('maxGradYear', '<%= searchParams.maxGradYear %>');
+      formData.append('availabilityOnly', <%= searchParams.availabilityOnly ? 'true' : 'false' %>);
+      formData.append('sortBy', this.value);
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '<%= BASE_URL %>/alumni/search';
+      
+      for (const [key, value] of formData) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      }
+      
+      document.body.appendChild(form);
+      form.submit();
+    });
+  }
+</script>

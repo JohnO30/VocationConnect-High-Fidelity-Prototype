@@ -1,0 +1,28 @@
+<div style="max-width: 550px; margin: 2rem auto;">
+  <div class="card" style="text-align: center; margin-bottom: 2rem;">
+    <h2 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--success-color);">Welcome back, <%= username %>!</h2>
+    <p style="color: var(--text-gray);">You have successfully signed in to VocationConnect.</p>
+  </div>
+
+  <div class="card">
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🚀</div>
+      <h3 style="color: var(--success-color); margin-bottom: 0.5rem;">Login Successful</h3>
+      <p style="color: var(--text-dark); margin-bottom: 1rem;">
+        Welcome back to your <strong><%= userType %></strong> dashboard!
+      </p>
+      <p style="color: var(--text-gray); font-size: 0.9rem;">
+        You now have access to all your connections, messages, and interview opportunities.
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <a href="<%= BASE_URL %>/users/login/success" class="btn btn-primary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">
+        Go to Dashboard
+      </a>
+      <a href="<%= BASE_URL %>/" class="btn btn-secondary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">
+        Go to Home
+      </a>
+    </div>
+  </div>
+</div>

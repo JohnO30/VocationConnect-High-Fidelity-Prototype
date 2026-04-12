@@ -86,11 +86,11 @@ router.post('/registered',
           });
         }
 
-        res.send(`
-          <h2>Registration Successful</h2>
-          <p>User ${req.body.username} has been registered successfully as a ${req.body.user_type}!</p>
-          <p><a href="${req.app.locals.BASE_URL || ''}/users/login">Login here</a> or <a href="${req.app.locals.BASE_URL || ''}">Go to Home</a></p>
-        `);
+        res.render('register_success', {
+          title: 'Registration Successful',
+          username: req.body.username,
+          userType: req.body.user_type
+        });
       });
 
     } catch (error) {
@@ -108,7 +108,7 @@ router.get('/login', redirectHome, (req, res) => {
 });
 
 // Process login form submission
-router.post('/loggedin', async (req, res, next) => {
+router.post('/login', async (req, res, next) => {
   const { username, password } = req.body;
 
   const sql = "SELECT id, username, hashedPassword, user_type FROM users WHERE username = ?";
@@ -157,17 +157,45 @@ router.post('/loggedin', async (req, res, next) => {
       req.session.userId = user.id;
       req.session.username = user.username;
       req.session.userType = user.user_type;
-      
-      res.redirect(req.app.locals.BASE_URL || '/dashboard');
+
+      res.render('login_success', {
+        title: 'Login Successful',
+        username: user.username,
+        userType: user.user_type
+      });
     });
   });
 });
 
-// Logout user and destroy session
-router.get('/logout', function (req, res) {
-  req.session.destroy(function () {
-    res.redirect(req.app.locals.BASE_URL || '');
+// Display logout confirmation page
+router.get('/logout', redirectLogin, (req, res) => {
+  res.render('logout', {
+    title: 'Logout'
   });
+});
+
+// Process logout request and destroy session
+router.post('/logout', redirectLogin, (req, res) => {
+  req.session.destroy(function () {
+    res.render('logout_success', {
+      title: 'Logout Successful'
+    });
+  });
+});
+
+// Redirect to login after registration success
+router.get('/register/success', (req, res) => {
+  res.redirect(req.app.locals.BASE_URL || '/users/login');
+});
+
+// Redirect to dashboard after login success
+router.get('/login/success', redirectLogin, (req, res) => {
+  res.redirect(req.app.locals.BASE_URL || '/dashboard');
+});
+
+// Redirect to home after logout success
+router.get('/logout/success', (req, res) => {
+  res.redirect(req.app.locals.BASE_URL || '/');
 });
 
 // Display user profile

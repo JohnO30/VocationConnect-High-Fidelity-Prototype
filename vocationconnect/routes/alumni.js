@@ -39,15 +39,21 @@ router.get('/search', redirectLogin, (req, res) => {
   });
 });
 
-// Process alumni search
+// Process alumni search with advanced filters
 router.post('/search', redirectLogin, (req, res, next) => {
-  const keyword = req.sanitize(req.body.keyword);
-  const industry = req.sanitize(req.body.industry);
+  const keyword = req.sanitize(req.body.keyword || '');
+  const industry = req.sanitize(req.body.industry || '');
+  const minExperience = parseInt(req.body.minExperience) || 0;
+  const maxExperience = parseInt(req.body.maxExperience) || 100;
+  const minGradYear = parseInt(req.body.minGradYear) || 1990;
+  const maxGradYear = parseInt(req.body.maxGradYear) || new Date().getFullYear();
+  const availabilityOnly = req.body.availabilityOnly === 'on';
+  const sortBy = req.sanitize(req.body.sortBy || 'name');
   
   let sql = `
     SELECT u.id, u.username, u.first_name, u.last_name, u.graduation_year,
            ap.company, ap.job_title, ap.industry, ap.years_experience, 
-           ap.bio, ap.available_for_mock
+           ap.skills, ap.bio, ap.available_for_mock
     FROM users u
     JOIN alumni_profiles ap ON u.id = ap.user_id
     WHERE u.user_type = 'alumni'
@@ -55,28 +61,144 @@ router.post('/search', redirectLogin, (req, res, next) => {
   
   const params = [];
   
+  // Keyword search across multiple fields
   if (keyword) {
     sql += ` AND (u.first_name LIKE ? OR u.last_name LIKE ? OR ap.company LIKE ? OR ap.job_title LIKE ? OR ap.skills LIKE ?)`;
     const searchTerm = `%${keyword}%`;
     params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
   }
   
+  // Industry filter
   if (industry && industry !== 'all') {
     sql += ` AND ap.industry = ?`;
     params.push(industry);
   }
   
-  sql += ` ORDER BY u.first_name, u.last_name`;
+  // Experience range filter
+  sql += ` AND ap.years_experience >= ? AND ap.years_experience <= ?`;
+  params.push(minExperience, maxExperience);
+  
+  // Graduation year range filter
+  sql += ` AND u.graduation_year >= ? AND u.graduation_year <= ?`;
+  params.push(minGradYear, maxGradYear);
+  
+  // Availability filter
+  if (availabilityOnly) {
+    sql += ` AND ap.available_for_mock = TRUE`;
+  }
+  
+  // Apply sorting
+  switch(sortBy) {
+    case 'experience':
+      sql += ` ORDER BY ap.years_experience DESC, u.first_name`;
+      break;
+    case 'graduation':
+      sql += ` ORDER BY u.graduation_year DESC, u.first_name`;
+      break;
+    case 'company':
+      sql += ` ORDER BY ap.company, u.first_name`;
+      break;
+    default: // 'name'
+      sql += ` ORDER BY u.first_name, u.last_name`;
+  }
   
   db.query(sql, params, (err, results) => {
     if (err) return next(err);
     
-    res.render('alumni_search_results', {
-      title: 'Search Results',
-      alumni: results,
-      keyword: keyword,
-      industry: industry
+    // Get all available industries for filter options
+    const industrySql = `
+      SELECT DISTINCT industry FROM alumni_profiles 
+      WHERE industry IS NOT NULL AND industry != ''
+      ORDER BY industry
+    `;
+    
+    db.query(industrySql, (err2, industries) => {
+      if (err2) return next(err2);
+      
+      res.render('alumni_search_results', {
+        title: 'Search Results',
+        alumni: results,
+        searchParams: {
+          keyword: keyword,
+          industry: industry,
+          minExperience: minExperience,
+          maxExperience: maxExperience,
+          minGradYear: minGradYear,
+          maxGradYear: maxGradYear,
+          availabilityOnly: availabilityOnly,
+          sortBy: sortBy
+        },
+        industries: industries,
+        currentYear: new Date().getFullYear()
+      });
     });
+  });
+});
+
+// Real-time search API for autocomplete suggestions
+router.get('/api/search-suggestions', redirectLogin, (req, res, next) => {
+  const query = req.sanitize(req.query.q || '');
+  
+  if (!query || query.length < 2) {
+    return res.json({ suggestions: [] });
+  }
+  
+  const searchTerm = `%${query}%`;
+  
+  const sql = `
+    SELECT 
+      u.id, 
+      u.first_name, 
+      u.last_name, 
+      ap.company, 
+      ap.job_title,
+      ap.industry,
+      (CASE 
+        WHEN u.first_name LIKE ? THEN 1
+        WHEN u.last_name LIKE ? THEN 2
+        WHEN ap.company LIKE ? THEN 3
+        WHEN ap.job_title LIKE ? THEN 4
+        ELSE 5
+      END) AS relevance
+    FROM users u
+    JOIN alumni_profiles ap ON u.id = ap.user_id
+    WHERE u.user_type = 'alumni'
+    AND (u.first_name LIKE ? OR u.last_name LIKE ? OR ap.company LIKE ? OR ap.job_title LIKE ? OR ap.skills LIKE ?)
+    ORDER BY relevance, u.first_name, u.last_name
+    LIMIT 10
+  `;
+  
+  const params = [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm];
+  
+  db.query(sql, params, (err, results) => {
+    if (err) return next(err);
+    
+    const suggestions = results.map(row => ({
+      id: row.id,
+      name: `${row.first_name} ${row.last_name}`,
+      company: row.company,
+      title: row.job_title,
+      industry: row.industry,
+      displayText: `${row.first_name} ${row.last_name}${row.company ? ' at ' + row.company : ''}`
+    }));
+    
+    res.json({ suggestions: suggestions });
+  });
+});
+
+// Get available industries for filter options
+router.get('/api/industries', redirectLogin, (req, res, next) => {
+  const sql = `
+    SELECT DISTINCT industry FROM alumni_profiles 
+    WHERE industry IS NOT NULL AND industry != ''
+    ORDER BY industry
+  `;
+  
+  db.query(sql, (err, results) => {
+    if (err) return next(err);
+    
+    const industries = results.map(row => row.industry);
+    res.json({ industries: industries });
   });
 });
 

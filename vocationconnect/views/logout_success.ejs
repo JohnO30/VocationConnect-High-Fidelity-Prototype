@@ -1,0 +1,28 @@
+<div style="max-width: 550px; margin: 2rem auto;">
+  <div class="card" style="text-align: center; margin-bottom: 2rem;">
+    <h2 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--primary-color);">👋 Goodbye for now!</h2>
+    <p style="color: var(--text-gray);">You have been successfully signed out of VocationConnect.</p>
+  </div>
+
+  <div class="card">
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+      <h3 style="color: var(--primary-color); margin-bottom: 0.5rem;">Logout Successful</h3>
+      <p style="color: var(--text-dark); margin-bottom: 1rem;">
+        Your session has been securely ended.
+      </p>
+      <p style="color: var(--text-gray); font-size: 0.9rem;">
+        Thank you for using VocationConnect. We hope to see you back soon!
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <a href="<%= BASE_URL %>/users/login" class="btn btn-primary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">
+        Sign In Again
+      </a>
+      <a href="<%= BASE_URL %>/users/logout/success" class="btn btn-secondary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">
+        Go to Home
+      </a>
+    </div>
+  </div>
+</div>

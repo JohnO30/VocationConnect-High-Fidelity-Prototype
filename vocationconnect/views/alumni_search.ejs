@@ -1,27 +1,162 @@
 <div class="content-wrapper">
   <div class="card" style="margin-bottom: 2rem;">
-    <h2 style="margin-top: 0; margin-bottom: 1.5rem;">🔍 Search Alumni</h2>
+    <h2 style="margin-top: 0; margin-bottom: 1.5rem;">🔍 Advanced Alumni Search</h2>
 
-    <form action="<%= BASE_URL %>/alumni/search" method="POST" style="display: grid; gradient-template-columns: 1fr; gap: 1.5rem;">
+    <form action="<%= BASE_URL %>/alumni/search" method="POST" style="display: grid; gap: 1.5rem;">
+      <!-- Keyword Search -->
       <div>
-        <label for="keyword">Search by Name, Company, or Skills:</label>
-        <input type="text" id="keyword" name="keyword" placeholder="e.g., John Smith, Google, Machine Learning...">
+        <label for="keyword">
+          <strong>📝 Search by Name, Company, or Skills</strong>
+        </label>
+        <input 
+          type="text" 
+          id="keyword" 
+          name="keyword" 
+          placeholder="e.g., John Smith, Google, Machine Learning..." 
+          style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px; font-size: 0.95rem;"
+          autocomplete="off"
+        >
+        <div id="suggestions" style="position: absolute; background: white; border: 1px solid var(--border-light); border-radius: 4px; max-width: 400px; max-height: 300px; overflow-y: auto; display: none; z-index: 1000; box-shadow: var(--shadow-medium);"></div>
       </div>
-      
-      <div>
-        <label for="industry">Filter by Industry:</label>
-        <select id="industry" name="industry">
-          <option value="all">All Industries</option>
-          <option value="Technology">Technology</option>
-          <option value="Finance">Finance</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Education">Education</option>
-          <option value="Consulting">Consulting</option>
-          <option value="Other">Other</option>
-        </select>
+
+      <!-- Advanced Filters Section -->
+      <div style="border-top: 2px solid var(--border-light); padding-top: 1.5rem;">
+        <h3 style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--text-gray);">Advanced Filters</h3>
+
+        <!-- Two Column Layout for Filters -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          
+          <!-- Industry Filter -->
+          <div>
+            <label for="industry">
+              <strong>🏢 Industry</strong>
+            </label>
+            <select id="industry" name="industry" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px;">
+              <option value="all">All Industries</option>
+              <option value="Technology">Technology</option>
+              <option value="Finance">Finance</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Education">Education</option>
+              <option value="Consulting">Consulting</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Legal">Legal</option>
+              <option value="Government">Government</option>
+              <option value="Retail">Retail</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Alumni Availability -->
+          <div style="display: flex; align-items: center; gap: 0.75rem; padding-top: 1.5rem;">
+            <input 
+              type="checkbox" 
+              id="availabilityOnly" 
+              name="availabilityOnly"
+              style="width: 18px; height: 18px; cursor: pointer;"
+            >
+            <label for="availabilityOnly" style="margin: 0; cursor: pointer; font-weight: 500;">
+              💬 Available for Mock Interviews
+            </label>
+          </div>
+
+        </div>
+
+        <!-- Experience Range -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+          <div>
+            <label for="minExperience">
+              <strong>⏳ Minimum Years of Experience</strong>
+            </label>
+            <input 
+              type="number" 
+              id="minExperience" 
+              name="minExperience" 
+              value="0" 
+              min="0" 
+              max="60"
+              style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px;"
+            >
+          </div>
+          <div>
+            <label for="maxExperience">
+              <strong>⏳ Maximum Years of Experience</strong>
+            </label>
+            <input 
+              type="number" 
+              id="maxExperience" 
+              name="maxExperience" 
+              value="60" 
+              min="0" 
+              max="60"
+              style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px;"
+            >
+          </div>
+        </div>
+
+        <!-- Graduation Year Range -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+          <div>
+            <label for="minGradYear">
+              <strong>🎓 Minimum Graduation Year</strong>
+            </label>
+            <input 
+              type="number" 
+              id="minGradYear" 
+              name="minGradYear" 
+              value="1990" 
+              min="1990" 
+              max="<%= new Date().getFullYear() %>"
+              style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px;"
+            >
+          </div>
+          <div>
+            <label for="maxGradYear">
+              <strong>🎓 Maximum Graduation Year</strong>
+            </label>
+            <input 
+              type="number" 
+              id="maxGradYear" 
+              name="maxGradYear" 
+              value="<%= new Date().getFullYear() %>" 
+              min="1990" 
+              max="<%= new Date().getFullYear() %>"
+              style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px;"
+            >
+          </div>
+        </div>
+
+        <!-- Sorting Options -->
+        <div style="margin-top: 1.5rem;">
+          <label for="sortBy">
+            <strong>↕️ Sort Results By</strong>
+          </label>
+          <select id="sortBy" name="sortBy" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: 4px;">
+            <option value="name">Name (A-Z)</option>
+            <option value="experience">Years of Experience (Most to Least)</option>
+            <option value="graduation">Graduation Year (Most Recent)</option>
+            <option value="company">Company (A-Z)</option>
+          </select>
+        </div>
+
       </div>
-      
-      <input type="submit" value="Search Alumni" class="btn" style="align-self: flex-start;">
+
+      <!-- Search and Reset Buttons -->
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <input 
+          type="submit" 
+          value="🔍 Search Alumni" 
+          class="btn" 
+          style="padding: 0.75rem 2rem; font-size: 0.95rem; cursor: pointer;"
+        >
+        <button 
+          type="reset" 
+          class="btn" 
+          style="background-color: var(--bg-light); color: var(--text-dark); border: 1px solid var(--border-light); padding: 0.75rem 1.5rem; cursor: pointer;"
+        >
+          Reset
+        </button>
+      </div>
+
     </form>
   </div>
 
@@ -31,3 +166,80 @@
     </p>
   </div>
 </div>
+
+<style>
+  #suggestions .suggestion-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  #suggestions .suggestion-item:hover {
+    background-color: var(--bg-light);
+  }
+  
+  #suggestions .suggestion-item .suggestion-name {
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+  
+  #suggestions .suggestion-item .suggestion-meta {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+  }
+</style>
+
+<script>
+  // Real-time search suggestions
+  const searchInput = document.getElementById('keyword');
+  const suggestionsContainer = document.getElementById('suggestions');
+  let searchTimeout;
+  
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const query = this.value.trim();
+    
+    if (query.length < 2) {
+      suggestionsContainer.style.display = 'none';
+      return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+      fetch(`<%= BASE_URL %>/alumni/api/search-suggestions?q=` + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+          if (data.suggestions && data.suggestions.length > 0) {
+            suggestionsContainer.innerHTML = data.suggestions.map(suggestion => `
+              <div class="suggestion-item" onclick="selectSuggestion('${suggestion.displayText}', '${suggestion.id}')">
+                <div class="suggestion-name">${suggestion.name}</div>
+                <div class="suggestion-meta">
+                  ${suggestion.company ? '🏢 ' + suggestion.company : ''}
+                  ${suggestion.title ? ' · ' + suggestion.title : ''}
+                  ${suggestion.industry ? ' · ' + suggestion.industry : ''}
+                </div>
+              </div>
+            `).join('');
+            suggestionsContainer.style.display = 'block';
+          } else {
+            suggestionsContainer.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-gray);">No suggestions found</div>';
+            suggestionsContainer.style.display = 'block';
+          }
+        })
+        .catch(error => console.error('Search suggestion error:', error));
+    }, 300);
+  });
+  
+  function selectSuggestion(text, id) {
+    searchInput.value = text;
+    suggestionsContainer.style.display = 'none';
+  }
+  
+  // Hide suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (e.target !== searchInput) {
+      suggestionsContainer.style.display = 'none';
+    }
+  });
+</script>

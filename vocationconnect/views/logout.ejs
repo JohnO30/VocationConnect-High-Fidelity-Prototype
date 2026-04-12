@@ -1,0 +1,17 @@
+<div style="max-width: 550px; margin: 2rem auto;">
+  <div class="card" style="text-align: center; margin-bottom: 2rem;">
+    <h2 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--danger-color);">Confirm Logout</h2>
+    <p style="color: var(--text-gray);">You are about to sign out of your VocationConnect account.</p>
+  </div>
+
+  <div class="card">
+    <p style="margin-bottom: 1.5rem; color: var(--text-dark);">
+      If you want to continue, click the button below to securely end your session.
+    </p>
+
+    <form action="<%= BASE_URL %>/users/logout" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+      <input type="submit" value="Logout" class="btn btn-danger" style="width: 100%; padding: 0.85rem;" />
+      <a href="<%= BASE_URL %>/dashboard" class="btn btn-secondary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">Cancel</a>
+    </form>
+  </div>
+</div>
