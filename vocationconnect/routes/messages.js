@@ -112,7 +112,7 @@ router.post('/:id', redirectLogin, (req, res, next) => {
   const messageText = req.sanitize(req.body.message_text || '').trim();
 
   if (!messageText) {
-    return res.redirect((req.app.locals.BASE_URL || '') + `/messages/${connectionId}`);
+    return res.redirect((req.app.locals.BASE_URL || '') + `/directmessages/${connectionId}`);
   }
 
   const connectionSql = `
@@ -133,7 +133,7 @@ router.post('/:id', redirectLogin, (req, res, next) => {
 
     db.query(sql, [connectionId, senderId, messageText], (err2) => {
       if (err2) return next(err2);
-      res.redirect((req.app.locals.BASE_URL || '') + `/messages/${connectionId}`);
+      res.redirect((req.app.locals.BASE_URL || '') + `/directmessages/${connectionId}`);
     });
   });
 });
