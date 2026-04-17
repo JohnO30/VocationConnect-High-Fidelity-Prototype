@@ -48,4 +48,10 @@ VALUES
 INSERT INTO interview_notes (interview_id, user_id, note_text)
 VALUES
   (2, 1, 'Remember to use STAR method for behavioral questions'),
-  (2, 2, 'Student showed good understanding of React concepts but needs work on system design');
+-- Default notification settings for test users
+INSERT INTO user_notification_settings (user_id, email_notifications, push_notifications, connection_requests, messages, interviews)
+VALUES
+  (1, TRUE, TRUE, TRUE, TRUE, TRUE), -- john_student
+  (2, TRUE, TRUE, TRUE, TRUE, TRUE), -- jane_alumni
+  (3, TRUE, TRUE, TRUE, TRUE, TRUE), -- mike_alumni
+  (4, TRUE, TRUE, TRUE, TRUE, TRUE); -- sarah_student  (2, 2, 'Student showed good understanding of React concepts but needs work on system design');

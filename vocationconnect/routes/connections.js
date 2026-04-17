@@ -93,8 +93,16 @@ router.post('/request', redirectLogin, (req, res, next) => {
         VALUES (?, ?, ?)
       `;
 
-      db.query(sql, [studentId, alumniId, message], (err3) => {
+      db.query(sql, [studentId, alumniId, message], async (err3) => {
         if (err3) return next(err3);
+
+        // Send notification to alumni
+        try {
+          await global.notificationService.notifyConnectionRequest(studentId, alumniId, message);
+        } catch (notificationError) {
+          console.error('Failed to send connection request notification:', notificationError);
+          // Don't fail the request if notification fails
+        }
 
         return res.redirect(baseUrl + '/alumni/' + alumniId + '?status=sent');
       });
@@ -103,7 +111,7 @@ router.post('/request', redirectLogin, (req, res, next) => {
 });
 
 // Accept connection
-router.post('/:id/accept', redirectLogin, (req, res, next) => {
+router.post('/:id/accept', redirectLogin, async (req, res, next) => {
   if (req.session.userType !== 'alumni') {
     return res.status(403).send('Only alumni can accept connection requests');
   }
@@ -117,14 +125,22 @@ router.post('/:id/accept', redirectLogin, (req, res, next) => {
     WHERE id = ? AND alumni_id = ?
   `;
   
-  db.query(sql, [connectionId, alumniId], (err) => {
+  db.query(sql, [connectionId, alumniId], async (err) => {
     if (err) return next(err);
+    
+    // Send notification to student
+    try {
+      await global.notificationService.notifyConnectionResponse(connectionId, 'accepted');
+    } catch (notificationError) {
+      console.error('Failed to send connection acceptance notification:', notificationError);
+    }
+    
     res.redirect((req.app.locals.BASE_URL || '') + '/connections/my');
   });
 });
 
 // Decline connection
-router.post('/:id/decline', redirectLogin, (req, res, next) => {
+router.post('/:id/decline', redirectLogin, async (req, res, next) => {
   if (req.session.userType !== 'alumni') {
     return res.status(403).send('Only alumni can decline connection requests');
   }
@@ -138,8 +154,16 @@ router.post('/:id/decline', redirectLogin, (req, res, next) => {
     WHERE id = ? AND alumni_id = ?
   `;
   
-  db.query(sql, [connectionId, alumniId], (err) => {
+  db.query(sql, [connectionId, alumniId], async (err) => {
     if (err) return next(err);
+    
+    // Send notification to student
+    try {
+      await global.notificationService.notifyConnectionResponse(connectionId, 'declined');
+    } catch (notificationError) {
+      console.error('Failed to send connection decline notification:', notificationError);
+    }
+    
     res.redirect((req.app.locals.BASE_URL || '') + '/connections/my');
   });
 });

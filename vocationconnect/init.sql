@@ -134,6 +134,42 @@ CREATE TABLE IF NOT EXISTS login_audit (
   INDEX idx_login_time (login_time)
 );
 
+-- Notifications table for push and email notifications
+CREATE TABLE IF NOT EXISTS notifications (
+  id              INT AUTO_INCREMENT,
+  user_id         INT NOT NULL,
+  type            ENUM('connection_request', 'connection_accepted', 'connection_declined', 'message', 'interview_scheduled', 'interview_reminder') NOT NULL,
+  title           VARCHAR(255) NOT NULL,
+  message         TEXT NOT NULL,
+  related_id      INT, -- ID of related record (connection_id, message_id, etc.)
+  is_read         BOOLEAN DEFAULT FALSE,
+  email_sent      BOOLEAN DEFAULT FALSE,
+  push_sent       BOOLEAN DEFAULT FALSE,
+  created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_user (user_id),
+  INDEX idx_type (type),
+  INDEX idx_read (is_read),
+  INDEX idx_created (created_at)
+);
+
+-- User notification preferences
+CREATE TABLE IF NOT EXISTS user_notification_settings (
+  id                    INT AUTO_INCREMENT,
+  user_id               INT NOT NULL,
+  email_notifications   BOOLEAN DEFAULT TRUE,
+  push_notifications    BOOLEAN DEFAULT TRUE,
+  connection_requests   BOOLEAN DEFAULT TRUE,
+  messages              BOOLEAN DEFAULT TRUE,
+  interviews            BOOLEAN DEFAULT TRUE,
+  created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at            DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_user (user_id)
+);
+
 -- Create application user
 CREATE USER IF NOT EXISTS 'vocation_app'@'localhost' IDENTIFIED BY 'qwertyuiop';
 GRANT ALL PRIVILEGES ON vocationconnect.* TO 'vocation_app'@'localhost';
