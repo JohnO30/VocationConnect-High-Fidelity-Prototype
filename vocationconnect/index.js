@@ -53,6 +53,10 @@ const db = mysql.createPool({
 // Make database connection globally available
 global.db = db;
 
+// Initialize notification service
+const NotificationService = require('./notificationService');
+global.notificationService = new NotificationService(db);
+
 // Set application-wide local variables for templates
 app.locals.siteData = {
   siteName: "VocationConnect"
@@ -81,6 +85,7 @@ const alumniRoutes = require('./routes/alumni');
 const interviewRoutes = require('./routes/interviews');
 const connectionRoutes = require('./routes/connections');
 const messageRoutes = require('./routes/messages');
+const notificationRoutes = require('./routes/notifications');
 
 // Mount route handlers with base path
 app.use(BASE_PATH + '/', mainRoutes);
@@ -89,6 +94,7 @@ app.use(BASE_PATH + '/alumni', alumniRoutes);
 app.use(BASE_PATH + '/interviews', interviewRoutes);
 app.use(BASE_PATH + '/connections', connectionRoutes);
 app.use(BASE_PATH + '/messages', messageRoutes);
+app.use(BASE_PATH + '/notifications', notificationRoutes);
 
 // Start the server
 app.listen(port, () => {

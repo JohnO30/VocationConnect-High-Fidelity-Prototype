@@ -1,0 +1,168 @@
+<style>
+    .notification-item {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        background-color: #fff;
+    }
+    .notification-item.unread {
+        background-color: #f8f9ff;
+        border-left: 4px solid #007bff;
+    }
+    .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .notification-title {
+        font-weight: bold;
+        color: #333;
+    }
+    .notification-time {
+        color: #666;
+        font-size: 0.9em;
+    }
+    .notification-message {
+        color: #555;
+        line-height: 1.4;
+    }
+    .notification-actions {
+        margin-top: 10px;
+    }
+    .mark-read-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+    }
+    .mark-read-btn:hover {
+        background-color: #0056b3;
+    }
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .pagination a, .pagination span {
+        margin: 0 5px;
+        padding: 8px 12px;
+        text-decoration: none;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .pagination .current {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+    .mark-all-read {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+    .mark-all-read:hover {
+        background-color: #218838;
+    }
+    .empty-notifications {
+        text-align: center;
+        color: #666;
+        padding: 40px;
+    }
+</style>
+
+<div class="container">
+    <h1><%= title %></h1>
+
+        <% if (notifications && notifications.length > 0) { %>
+            <button class="mark-all-read" onclick="markAllAsRead()">Mark All as Read</button>
+
+            <% notifications.forEach(notification => { %>
+                <div class="notification-item <%= notification.is_read ? '' : 'unread' %>" data-id="<%= notification.id %>">
+                    <div class="notification-header">
+                        <span class="notification-title"><%= notification.title %></span>
+                        <span class="notification-time"><%= new Date(notification.created_at).toLocaleString() %></span>
+                    </div>
+                    <div class="notification-message"><%= notification.message %></div>
+                    <% if (!notification.is_read) { %>
+                        <div class="notification-actions">
+                            <button class="mark-read-btn" onclick="markAsRead(<%= notification.id %>)">Mark as Read</button>
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+
+            <% if (totalPages > 1) { %>
+                <div class="pagination">
+                    <% if (hasPrevPage) { %>
+                        <a href="?page=<%= prevPage %>">&laquo; Previous</a>
+                    <% } %>
+
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <% if (i === currentPage) { %>
+                            <span class="current"><%= i %></span>
+                        <% } else { %>
+                            <a href="?page=<%= i %>"><%= i %></a>
+                        <% } %>
+                    <% } %>
+
+                    <% if (hasNextPage) { %>
+                        <a href="?page=<%= nextPage %>">Next &raquo;</a>
+                    <% } %>
+                </div>
+            <% } %>
+        <% } else { %>
+            <div class="empty-notifications">
+                <h3>No notifications yet</h3>
+                <p>When you receive connection requests or other updates, they'll appear here.</p>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        function markAsRead(notificationId) {
+            fetch('<%= BASE_URL %>/notifications/' + notificationId + '/read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const notificationItem = document.querySelector(`[data-id="${notificationId}"]`);
+                    notificationItem.classList.remove('unread');
+                    const markReadBtn = notificationItem.querySelector('.mark-read-btn');
+                    if (markReadBtn) {
+                        markReadBtn.remove();
+                    }
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+        }
+
+        function markAllAsRead() {
+            fetch('<%= BASE_URL %>/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to show updated state
+                    window.location.reload();
+                }
+            })
+            .catch(error => console.error('Error marking all notifications as read:', error));
+        }
+    </script>

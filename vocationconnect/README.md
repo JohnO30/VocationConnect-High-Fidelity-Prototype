@@ -22,16 +22,11 @@ A comprehensive web application connecting students with alumni mentors for care
   - Track connection status (pending, accepted, declined)
   - View all connections in one place
 
-- **Mock Interview Platform**
-  - Schedule mock interviews with alumni
-  - Live interview room with:
-    - Video feed (PiP for user camera)
-    - Interview questions with timer
-    - Real-time chat
-    - Private note-taking
-    - Mute/unmute and video on/off controls
-  - Interview history tracking
-  - Feedback and rating system
+- **Notification System**
+  - Push notifications for connection requests and responses
+  - Email notifications for important updates
+  - User-configurable notification preferences
+  - Notification history and management
 
 ### Technical Features
 - RESTful API architecture
@@ -39,6 +34,7 @@ A comprehensive web application connecting students with alumni mentors for care
 - MySQL database with relational data integrity
 - Form validation with express-validator
 - Input sanitization for security
+- Email and push notification system
 - Responsive design
 - WebRTC-ready for video communication
 
@@ -113,6 +109,20 @@ vocationconnect/
    VOCATION_PASSWORD=qwertyuiop
    VOCATION_DATABASE=vocationconnect
    VOCATION_BASE_PATH=
+   
+   # Email configuration (for notifications)
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASS=your-app-password
+   
+   # Push notification configuration (optional)
+   VAPID_EMAIL=mailto:your-email@gmail.com
+   VAPID_PUBLIC_KEY=your-vapid-public-key
+   VAPID_PRIVATE_KEY=your-vapid-private-key
+   
+   # Base URL for email links
+   BASE_URL=http://localhost:8000
    ```
    
    **For VM deployment:**
@@ -122,6 +132,20 @@ vocationconnect/
    VOCATION_PASSWORD=qwertyuiop
    VOCATION_DATABASE=vocationconnect
    VOCATION_BASE_PATH=/usr/260
+   
+   # Email configuration (for notifications)
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASS=your-app-password
+   
+   # Push notification configuration (optional)
+   VAPID_EMAIL=mailto:your-email@gmail.com
+   VAPID_PUBLIC_KEY=your-vapid-public-key
+   VAPID_PRIVATE_KEY=your-vapid-private-key
+   
+   # Base URL for email links
+   BASE_URL=https://www.doc.gold.ac.uk/usr/260
    ```
 
 5. **Run the application**
