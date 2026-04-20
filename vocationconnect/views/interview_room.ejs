@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mock Interview - <%= siteData.siteName %></title>
     <link rel="stylesheet" href="<%= BASE_URL %>/interview-room.css">
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body class="interview-room">
 
@@ -17,7 +18,11 @@
     <main class="dashboard-container">
         
         <section class="left-panel">
-            <div class="video-stage">
+            <div class="video-stage" id="videoStage" aria-label="Live interview video area" tabindex="0">
+                <div class="call-status" id="callStatus" aria-live="polite" role="status">Waiting for interview partner...</div>
+                <video id="remoteCam" autoplay playsinline aria-label="Interview partner video" title="Interview partner video"></video>
+                <div class="video-label remote-label">Partner Camera</div>
+
                 <div class="interviewer-label">
                     <p><strong>
                         <% if (session.userType === 'student') { %>
@@ -35,9 +40,10 @@
                     </p>
                 </div>
 
-                <div class="user-pip">
-                    <span class="pip-placeholder" id="camStatus">Camera Loading...</span>
-                    <video id="userCam" autoplay muted playsinline></video>
+                <div class="user-pip" aria-label="Self view preview">
+                    <span class="pip-placeholder" id="camStatus" role="status" aria-live="polite">Camera Loading...</span>
+                    <video id="userCam" autoplay muted playsinline aria-label="Your camera preview" title="Your camera preview"></video>
+                    <div class="video-label local-label">You</div>
                 </div>
             </div>
 
@@ -103,9 +109,9 @@
     </main>
 
     <footer class="interview-footer">
-        <button class="ctrl-btn" id="muteBtn">🎤 Mute</button>
-        <button class="ctrl-btn" id="videoBtn">📷 Video Off</button>
-        <button class="ctrl-btn btn-danger" id="endCallBtn">End Interview</button>
+        <button class="ctrl-btn" id="muteBtn" aria-pressed="false" aria-label="Mute microphone">🎤 Mute</button>
+        <button class="ctrl-btn" id="videoBtn" aria-pressed="true" aria-label="Turn off camera">📷 Video Off</button>
+        <button class="ctrl-btn btn-danger" id="endCallBtn" aria-label="End interview">End Interview</button>
     </footer>
 
     <script>
@@ -113,12 +119,20 @@
         const interviewId = <%= interview.id %>;
         const baseUrl = '<%= BASE_URL %>';
         
-        // Camera and timer state
+        // Interview state
         let stream;
+        let peerConnection;
+        let isOfferer = false;
+        let shouldCreateOffer = false;
         let secondsElapsed = 0;
+        const socketPath = '/socket.io';
+        const socket = typeof io !== 'undefined' ? io({ path: socketPath }) : null;
         
         // DOM Elements
-        const videoElement = document.getElementById('userCam');
+        const localVideo = document.getElementById('userCam');
+        const remoteVideo = document.getElementById('remoteCam');
+        const callStatus = document.getElementById('callStatus');
+        const videoStage = document.getElementById('videoStage');
         const camStatus = document.getElementById('camStatus');
         const timerDisplay = document.getElementById('timerDisplay');
         const chatInput = document.getElementById('chatInput');
@@ -128,19 +142,128 @@
         const endCallBtn = document.getElementById('endCallBtn');
         const notesArea = document.getElementById('notesArea');
         
-        // Initialize camera
+        // Initialize camera and join interview room
         async function initCamera() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ 
                     video: true, 
                     audio: true 
                 });
-                videoElement.srcObject = stream;
+                localVideo.srcObject = stream;
+                localVideo.muted = true;
                 camStatus.style.display = 'none';
+                await initSignaling();
+                if (shouldCreateOffer) {
+                    await createAndSendOffer();
+                }
             } catch (err) {
                 console.error('Camera error:', err);
                 camStatus.innerText = "Camera Access Denied";
             }
+        }
+
+        // Initialize signaling with Socket.IO
+        async function initSignaling() {
+            if (!socket) {
+                updateCallStatus('Signaling unavailable');
+                return;
+            }
+
+            socket.on('connect_error', (error) => {
+                console.error('Socket connect error:', error);
+                updateCallStatus('Signaling connection failed');
+            });
+
+            socket.on('joinedInterview', ({ participantCount }) => {
+                if (participantCount === 1) {
+                    updateCallStatus('Waiting for interview partner...');
+                } else {
+                    updateCallStatus('Connecting to interview partner...');
+                }
+            });
+
+            socket.on('createOffer', async () => {
+                shouldCreateOffer = true;
+                if (stream) {
+                    await createAndSendOffer();
+                }
+            });
+
+            socket.on('waitForOffer', () => {
+                updateCallStatus('Interview partner is preparing the call...');
+            });
+
+            socket.on('webRTCOffer', async ({ sdp }) => {
+                if (!peerConnection) {
+                    createPeerConnection();
+                }
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                socket.emit('webRTCAnswer', { interviewId, sdp: answer });
+            });
+
+            socket.on('webRTCAnswer', async ({ sdp }) => {
+                if (peerConnection) {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
+                }
+            });
+
+            socket.on('iceCandidate', async ({ candidate }) => {
+                if (peerConnection && candidate) {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+            });
+
+            socket.on('peerLeft', () => {
+                updateCallStatus('Partner disconnected. Waiting for return.');
+                if (remoteVideo.srcObject) {
+                    remoteVideo.srcObject.getTracks().forEach((track) => track.stop());
+                    remoteVideo.srcObject = null;
+                }
+                if (peerConnection) {
+                    peerConnection.close();
+                    peerConnection = null;
+                }
+            });
+
+            socket.emit('joinInterview', { interviewId });
+        }
+
+        function updateCallStatus(message) {
+            callStatus.innerText = message;
+            videoStage.classList.toggle('waiting', message.toLowerCase().includes('waiting'));
+            videoStage.classList.toggle('connected', message.toLowerCase().includes('connected') || message.toLowerCase().includes('connecting'));
+        }
+
+        function createPeerConnection() {
+            peerConnection = new RTCPeerConnection({
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' }
+                ]
+            });
+
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('iceCandidate', { interviewId, candidate: event.candidate });
+                }
+            };
+
+            peerConnection.ontrack = (event) => {
+                remoteVideo.srcObject = event.streams[0];
+                updateCallStatus('Interview connected');
+            };
+
+            stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
+        }
+
+        async function createAndSendOffer() {
+            if (!peerConnection) {
+                createPeerConnection();
+            }
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit('webRTCOffer', { interviewId, sdp: offer });
         }
         
         // Toggle audio
@@ -150,6 +273,8 @@
             audioTrack.enabled = !audioTrack.enabled;
             muteBtn.innerHTML = audioTrack.enabled ? "🎤 Mute" : "🚫 Unmute";
             muteBtn.classList.toggle('btn-danger', !audioTrack.enabled);
+            muteBtn.setAttribute('aria-pressed', String(!audioTrack.enabled));
+            muteBtn.setAttribute('aria-label', audioTrack.enabled ? 'Mute microphone' : 'Unmute microphone');
         }
         
         // Toggle video
@@ -159,7 +284,9 @@
             videoTrack.enabled = !videoTrack.enabled;
             videoBtn.innerHTML = videoTrack.enabled ? "📷 Video Off" : "📷 Video On";
             videoBtn.classList.toggle('btn-danger', !videoTrack.enabled);
-            videoElement.style.opacity = videoTrack.enabled ? "1" : "0";
+            videoBtn.setAttribute('aria-pressed', String(videoTrack.enabled));
+            videoBtn.setAttribute('aria-label', videoTrack.enabled ? 'Turn off camera' : 'Turn on camera');
+            localVideo.style.opacity = videoTrack.enabled ? "1" : "0";
             camStatus.style.display = videoTrack.enabled ? "none" : "block";
             camStatus.innerText = "Camera Off";
         }

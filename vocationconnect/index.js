@@ -2,6 +2,8 @@
 const express = require('express');
 var ejs = require('ejs');
 var expressLayouts = require('express-ejs-layouts');
+const http = require('http');
+const { Server } = require('socket.io');
 const path = require('path');
 var mysql = require('mysql2');
 require('dotenv').config();
@@ -96,8 +98,52 @@ app.use(BASE_PATH + '/connections', connectionRoutes);
 app.use(BASE_PATH + '/messages', messageRoutes);
 app.use(BASE_PATH + '/notifications', notificationRoutes);
 
+// Real-time signaling for interview video
+const server = http.createServer(app);
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+  let currentRoom = null;
+
+  socket.on('joinInterview', ({ interviewId }) => {
+    const roomName = `interview_${interviewId}`;
+    currentRoom = roomName;
+    socket.join(roomName);
+
+    const room = io.sockets.adapter.rooms.get(roomName);
+    const participantCount = room ? room.size : 0;
+    socket.emit('joinedInterview', { participantCount });
+
+    if (participantCount === 2) {
+      socket.emit('createOffer');
+      socket.to(roomName).emit('waitForOffer');
+    }
+  });
+
+  socket.on('webRTCOffer', ({ interviewId, sdp }) => {
+    const roomName = `interview_${interviewId}`;
+    socket.to(roomName).emit('webRTCOffer', { sdp });
+  });
+
+  socket.on('webRTCAnswer', ({ interviewId, sdp }) => {
+    const roomName = `interview_${interviewId}`;
+    socket.to(roomName).emit('webRTCAnswer', { sdp });
+  });
+
+  socket.on('iceCandidate', ({ interviewId, candidate }) => {
+    const roomName = `interview_${interviewId}`;
+    socket.to(roomName).emit('iceCandidate', { candidate });
+  });
+
+  socket.on('disconnect', () => {
+    if (currentRoom) {
+      socket.to(currentRoom).emit('peerLeft');
+    }
+  });
+});
+
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`VocationConnect app listening on port ${port}...`);
   console.log(`Access at: http://localhost:${port}${BASE_PATH}/`);
 });
