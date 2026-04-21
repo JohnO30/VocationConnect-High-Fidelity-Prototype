@@ -11,40 +11,52 @@
 
     <header class="interview-header">
         <button class="nav-btn" onclick="if(confirm('Leave interview?')) window.location.href='<%= BASE_URL %>/interviews/my'">&lt; Back</button>
-        <h2>Mock Interview Room</h2>
         <button class="nav-btn" onclick="window.location.href='<%= BASE_URL %>/users/profile'">[<%= session.username %>]</button>
     </header>
 
     <main class="dashboard-container">
         
         <section class="left-panel">
+            <div class="page-title">
+                <h1>Mock Interview Room</h1>
+            </div>
+
             <div class="video-stage" id="videoStage" aria-label="Live interview video area" tabindex="0">
                 <div class="call-status" id="callStatus" aria-live="polite" role="status">Waiting for interview partner...</div>
-                <video id="remoteCam" autoplay playsinline aria-label="Interview partner video" title="Interview partner video"></video>
-                <div class="video-label remote-label">Partner Camera</div>
-
-                <div class="interviewer-label">
-                    <p><strong>
-                        <% if (session.userType === 'student') { %>
-                            <%= interview.alumni_first_name %> <%= interview.alumni_last_name %>
-                        <% } else { %>
-                            <%= interview.student_first_name %> <%= interview.student_last_name %>
-                        <% } %>
-                    </strong></p>
-                    <p style="color: #888;">
-                        <% if (session.userType === 'student') { %>
-                            (<%= interview.company %> - <%= interview.job_title %>)
-                        <% } else { %>
-                            (Student)
-                        <% } %>
-                    </p>
+                
+                <div class="video-container">
+                    <video id="remoteCam" autoplay playsinline aria-label="Interview partner video" title="Interview partner video"></video>
+                    <div class="video-label remote-label">Partner Camera</div>
                 </div>
 
-                <div class="user-pip" aria-label="Self view preview">
-                    <span class="pip-placeholder" id="camStatus" role="status" aria-live="polite">Camera Loading...</span>
+                <div class="video-container">
                     <video id="userCam" autoplay muted playsinline aria-label="Your camera preview" title="Your camera preview"></video>
+                    <span class="pip-placeholder" id="camStatus" role="status" aria-live="polite">Camera Loading...</span>
                     <div class="video-label local-label">You</div>
                 </div>
+            </div>
+
+            <div class="video-controls">
+                <button class="ctrl-btn" id="muteBtn" aria-pressed="false" aria-label="Mute microphone">🎤 Mute</button>
+                <button class="ctrl-btn" id="videoBtn" aria-pressed="true" aria-label="Turn off camera">📷 Video Off</button>
+                <button class="ctrl-btn btn-danger" id="endCallBtn" aria-label="End interview">End Interview</button>
+            </div>
+
+            <div class="interviewer-label">
+                <p><strong>
+                    <% if (session.userType === 'student') { %>
+                        <%= interview.alumni_first_name %> <%= interview.alumni_last_name %>
+                    <% } else { %>
+                        <%= interview.student_first_name %> <%= interview.student_last_name %>
+                    <% } %>
+                </strong></p>
+                <p style="color: #888;">
+                    <% if (session.userType === 'student') { %>
+                        (<%= interview.company %> - <%= interview.job_title %>)
+                    <% } else { %>
+                        (Student)
+                    <% } %>
+                </p>
             </div>
 
             <div class="question-card">
@@ -107,12 +119,6 @@
         </aside>
 
     </main>
-
-    <footer class="interview-footer">
-        <button class="ctrl-btn" id="muteBtn" aria-pressed="false" aria-label="Mute microphone">🎤 Mute</button>
-        <button class="ctrl-btn" id="videoBtn" aria-pressed="true" aria-label="Turn off camera">📷 Video Off</button>
-        <button class="ctrl-btn btn-danger" id="endCallBtn" aria-label="End interview">End Interview</button>
-    </footer>
 
     <script>
         // Interview ID for API calls

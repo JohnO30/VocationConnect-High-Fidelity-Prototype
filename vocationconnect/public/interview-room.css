@@ -33,22 +33,27 @@ body.interview-room {
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.interview-header h2 {
-    color: var(--text);
-    font-size: 1.1rem;
-    margin: 0;
-    font-weight: 600;
+.page-title {
+    text-align: center;
+    margin-bottom: 15px;
 }
 
-.interview-footer {
-    height: 80px;
-    background: var(--bg-panel);
-    border-top: 1px solid var(--border);
+.page-title h1 {
+    color: var(--text);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.video-controls {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
-    box-shadow: 0 -1px 2px rgba(0,0,0,0.1);
+    gap: 12px;
+    margin-top: 15px;
+    padding: 15px 0;
+    border-top: 1px solid var(--border);
 }
 
 .nav-btn {
@@ -56,8 +61,8 @@ body.interview-room {
     border: none;
     color: white;
     cursor: pointer;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
     border-radius: 20px;
     font-weight: 600;
     transition: all 0.2s ease;
@@ -75,16 +80,16 @@ body.interview-room {
 .dashboard-container {
     flex: 1;
     display: grid;
-    grid-template-columns: 3fr 1fr;
-    gap: 15px;
-    padding: 15px;
+    grid-template-columns: 4fr 1fr;
+    gap: 12px;
+    padding: 12px;
     min-height: 0;
 }
 
 .left-panel {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .video-stage {
@@ -93,17 +98,28 @@ body.interview-room {
     border: 1px solid var(--border);
     position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: 12px;
     overflow: hidden;
     min-height: 0;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    padding: 8px;
 }
 
-#remoteCam {
+.video-container {
+    flex: 1;
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 350px;
+}
+
+#remoteCam, #userCam {
     position: absolute;
-    z-index: 1;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -112,6 +128,8 @@ body.interview-room {
 
 .video-label {
     position: absolute;
+    top: 10px;
+    left: 10px;
     z-index: 6;
     background: rgba(0, 0, 0, 0.7);
     color: #fff;
@@ -120,16 +138,6 @@ body.interview-room {
     font-weight: 600;
     border-radius: 999px;
     letter-spacing: 0.2px;
-}
-
-.remote-label {
-    top: 20px;
-    left: 20px;
-}
-
-.local-label {
-    bottom: 20px;
-    left: 20px;
 }
 
 .video-stage {
@@ -145,9 +153,9 @@ body.interview-room {
     z-index: 5;
     background: rgba(0,0,0,0.75);
     color: #fff;
-    padding: 1rem 1.25rem;
+    padding: 0.8rem 1rem;
     border-radius: 999px;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     white-space: nowrap;
 }
 
@@ -157,9 +165,9 @@ body.interview-room {
     text-align: center;
     color: var(--text-gray);
     background: rgba(255,255,255,0.9);
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 0.8rem;
     border-radius: 10px;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
 }
 
 .interviewer-label p {
@@ -174,22 +182,6 @@ body.interview-room {
     color: var(--text);
 }
 
-.user-pip {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 260px;
-    height: 180px;
-    background: var(--bg-panel);
-    border: 2px solid var(--border);
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-}
-
 #userCam {
     width: 100%;
     height: 100%;
@@ -199,10 +191,14 @@ body.interview-room {
 
 .pip-placeholder {
     position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 0.75rem;
     color: #666;
     text-align: center;
     padding: 0 10px;
+    z-index: 5;
 }
 
 button:focus-visible,
@@ -215,7 +211,7 @@ button:focus {
     flex: 0;
     background: var(--bg-panel);
     border: 1px solid var(--border);
-    padding: 24px;
+    padding: 18px;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.14);
     display: block;
@@ -239,9 +235,9 @@ button:focus {
 .timer-row {
     text-align: right;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--text);
-    padding: 10px;
+    padding: 8px;
 }
 
 .right-panel {
@@ -249,7 +245,7 @@ button:focus {
     border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    padding: 15px;
+    padding: 12px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
