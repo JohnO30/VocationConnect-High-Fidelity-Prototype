@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const searchEngine = require('../utils/searchEngine');
 
 // Middleware to require user login
 const redirectLogin = (req, res, next) => {
@@ -39,7 +40,7 @@ router.get('/search', redirectLogin, (req, res) => {
   });
 });
 
-// Process alumni search with advanced filters
+// Process alumni search with advanced algorithmic ranking
 router.post('/search', redirectLogin, (req, res, next) => {
   const keyword = req.sanitize(req.body.keyword || '');
   const industry = req.sanitize(req.body.industry || '');
@@ -48,9 +49,10 @@ router.post('/search', redirectLogin, (req, res, next) => {
   const minGradYear = parseInt(req.body.minGradYear) || 1990;
   const maxGradYear = parseInt(req.body.maxGradYear) || new Date().getFullYear();
   const availabilityOnly = req.body.availabilityOnly === 'on';
-  const sortBy = req.sanitize(req.body.sortBy || 'name');
+  const sortBy = req.sanitize(req.body.sortBy || 'relevance');
   
-  let sql = `
+  // Fetch all alumni from database
+  const sql = `
     SELECT u.id, u.username, u.first_name, u.last_name, u.graduation_year,
            ap.company, ap.job_title, ap.industry, ap.years_experience, 
            ap.skills, ap.bio, ap.available_for_mock
@@ -59,51 +61,23 @@ router.post('/search', redirectLogin, (req, res, next) => {
     WHERE u.user_type = 'alumni'
   `;
   
-  const params = [];
-  
-  // Keyword search across multiple fields
-  if (keyword) {
-    sql += ` AND (u.first_name LIKE ? OR u.last_name LIKE ? OR ap.company LIKE ? OR ap.job_title LIKE ? OR ap.skills LIKE ?)`;
-    const searchTerm = `%${keyword}%`;
-    params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
-  }
-  
-  // Industry filter
-  if (industry && industry !== 'all') {
-    sql += ` AND ap.industry = ?`;
-    params.push(industry);
-  }
-  
-  // Experience range filter
-  sql += ` AND ap.years_experience >= ? AND ap.years_experience <= ?`;
-  params.push(minExperience, maxExperience);
-  
-  // Graduation year range filter
-  sql += ` AND u.graduation_year >= ? AND u.graduation_year <= ?`;
-  params.push(minGradYear, maxGradYear);
-  
-  // Availability filter
-  if (availabilityOnly) {
-    sql += ` AND ap.available_for_mock = TRUE`;
-  }
-  
-  // Apply sorting
-  switch(sortBy) {
-    case 'experience':
-      sql += ` ORDER BY ap.years_experience DESC, u.first_name`;
-      break;
-    case 'graduation':
-      sql += ` ORDER BY u.graduation_year DESC, u.first_name`;
-      break;
-    case 'company':
-      sql += ` ORDER BY ap.company, u.first_name`;
-      break;
-    default: // 'name'
-      sql += ` ORDER BY u.first_name, u.last_name`;
-  }
-  
-  db.query(sql, params, (err, results) => {
+  db.query(sql, (err, allAlumni) => {
     if (err) return next(err);
+    
+    // Apply search engine with advanced ranking
+    const searchFilters = {
+      industry: industry && industry !== 'all' ? industry : null,
+      minExperience: minExperience,
+      maxExperience: maxExperience,
+      minGradYear: minGradYear,
+      maxGradYear: maxGradYear,
+      availabilityOnly: availabilityOnly
+    };
+    
+    let results = searchEngine.performSearch(allAlumni, keyword, searchFilters);
+    
+    // Apply secondary sorting (after relevance ranking)
+    results = applySorting(results, sortBy);
     
     // Get all available industries for filter options
     const industrySql = `
@@ -129,60 +103,136 @@ router.post('/search', redirectLogin, (req, res, next) => {
           sortBy: sortBy
         },
         industries: industries,
-        currentYear: new Date().getFullYear()
+        currentYear: new Date().getFullYear(),
+        totalResults: results.length,
+        searchStats: searchEngine.getStatistics()
       });
     });
   });
 });
 
-// Real-time search API for autocomplete suggestions
+/**
+ * Apply secondary sorting to already-ranked results
+ * @param {array} results - Already ranked by relevance
+ * @param {string} sortBy - Sort criteria
+ * @returns {array} - Re-sorted results
+ */
+function applySorting(results, sortBy) {
+  const sorted = [...results];
+  
+  switch(sortBy) {
+    case 'experience':
+      sorted.sort((a, b) => {
+        if (b.years_experience !== a.years_experience) {
+          return b.years_experience - a.years_experience;
+        }
+        // Secondary sort by relevance if experience equal
+        return b.relevanceScore - a.relevanceScore;
+      });
+      break;
+      
+    case 'graduation':
+      sorted.sort((a, b) => {
+        if (b.graduation_year !== a.graduation_year) {
+          return b.graduation_year - a.graduation_year;
+        }
+        return b.relevanceScore - a.relevanceScore;
+      });
+      break;
+      
+    case 'company':
+      sorted.sort((a, b) => {
+        const companyA = (a.company || '').toLowerCase();
+        const companyB = (b.company || '').toLowerCase();
+        if (companyA !== companyB) {
+          return companyA.localeCompare(companyB);
+        }
+        return b.relevanceScore - a.relevanceScore;
+      });
+      break;
+      
+    case 'name':
+      sorted.sort((a, b) => {
+        const nameA = `${a.first_name} ${a.last_name}`.toLowerCase();
+        const nameB = `${b.first_name} ${b.last_name}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      break;
+      
+    case 'relevance':
+    default:
+      // Already sorted by relevance from searchEngine.performSearch
+      break;
+  }
+  
+  return sorted;
+}
+
+// Real-time search API for autocomplete suggestions with fuzzy matching
 router.get('/api/search-suggestions', redirectLogin, (req, res, next) => {
   const query = req.sanitize(req.query.q || '');
   
-  if (!query || query.length < 2) {
+  if (!query || query.length < 1) {
     return res.json({ suggestions: [] });
   }
   
-  const searchTerm = `%${query}%`;
-  
+  // Get all alumni for fuzzy matching
   const sql = `
-    SELECT 
-      u.id, 
-      u.first_name, 
-      u.last_name, 
-      ap.company, 
-      ap.job_title,
-      ap.industry,
-      (CASE 
-        WHEN u.first_name LIKE ? THEN 1
-        WHEN u.last_name LIKE ? THEN 2
-        WHEN ap.company LIKE ? THEN 3
-        WHEN ap.job_title LIKE ? THEN 4
-        ELSE 5
-      END) AS relevance
+    SELECT u.id, u.first_name, u.last_name, u.graduation_year,
+           ap.company, ap.job_title, ap.industry, ap.years_experience, ap.skills
     FROM users u
     JOIN alumni_profiles ap ON u.id = ap.user_id
     WHERE u.user_type = 'alumni'
-    AND (u.first_name LIKE ? OR u.last_name LIKE ? OR ap.company LIKE ? OR ap.job_title LIKE ? OR ap.skills LIKE ?)
-    ORDER BY relevance, u.first_name, u.last_name
-    LIMIT 10
   `;
   
-  const params = [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm];
-  
-  db.query(sql, params, (err, results) => {
+  db.query(sql, (err, allAlumni) => {
     if (err) return next(err);
     
-    const suggestions = results.map(row => ({
-      id: row.id,
-      name: `${row.first_name} ${row.last_name}`,
-      company: row.company,
-      title: row.job_title,
-      industry: row.industry,
-      displayText: `${row.first_name} ${row.last_name}${row.company ? ' at ' + row.company : ''}`
-    }));
+    // Use search engine's fuzzy autocomplete algorithm
+    let suggestions = searchEngine.getAutocompleteSuggestions(allAlumni, query, 15);
+    
+    // Add additional details from database
+    suggestions = suggestions.map(suggestion => {
+      const alumni = allAlumni.find(a => a.id === suggestion.id);
+      return {
+        ...suggestion,
+        bio: alumni?.bio,
+        displayText: `${suggestion.name}${suggestion.company ? ' at ' + suggestion.company : ''}`
+      };
+    });
     
     res.json({ suggestions: suggestions });
+  });
+});
+
+// Enhanced fuzzy search endpoint for better typo tolerance
+router.get('/api/fuzzy-search', redirectLogin, (req, res, next) => {
+  const query = req.sanitize(req.query.q || '');
+  
+  if (!query || query.length < 2) {
+    return res.json({ results: [], message: 'Query too short' });
+  }
+  
+  // Get all alumni
+  const sql = `
+    SELECT u.id, u.first_name, u.last_name, u.graduation_year,
+           ap.company, ap.job_title, ap.industry, ap.years_experience, ap.skills, ap.available_for_mock
+    FROM users u
+    JOIN alumni_profiles ap ON u.id = ap.user_id
+    WHERE u.user_type = 'alumni'
+  `;
+  
+  db.query(sql, (err, allAlumni) => {
+    if (err) return next(err);
+    
+    // Use fuzzy search with typo tolerance
+    let results = searchEngine.getFuzzySuggestions(allAlumni, query, 20);
+    
+    res.json({ 
+      results: results,
+      query: query,
+      resultCount: results.length
+    });
   });
 });
 
@@ -200,6 +250,12 @@ router.get('/api/industries', redirectLogin, (req, res, next) => {
     const industries = results.map(row => row.industry);
     res.json({ industries: industries });
   });
+});
+
+// Get search analytics and statistics
+router.get('/api/search-analytics', redirectLogin, (req, res) => {
+  const stats = searchEngine.getStatistics();
+  res.json(stats);
 });
 
 // Display individual alumni profile
