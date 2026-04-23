@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    :root {
+      --primary-color: #0077B5;
+      --primary-dark: #005885;
+      --success-color: #27AE60;
+      --warning-color: #F39C12;
+      --danger-color: #E74C3C;
+      --text-dark: #2C3E50;
+      --text-light: #7F8C8D;
+      --border-light: #ECF0F1;
+      --bg-light: #F8F9FA;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: var(--text-dark);
+      background-color: var(--bg-light);
+      line-height: 1.6;
+    }
+
+    .history-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 119, 181, 0.3);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .sort-filter {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .sort-filter select {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background-color: white;
+      color: var(--text-dark);
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .survey-item {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary-color);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+
+    .survey-item:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transform: translateX(4px);
+    }
+
+    .survey-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .survey-date {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .survey-date strong {
+      display: block;
+      color: var(--text-dark);
+      font-size: 1.05rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .survey-score-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .score-badge {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .score-trend {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .trend-up {
+      color: var(--success-color);
+    }
+
+    .trend-down {
+      color: var(--danger-color);
+    }
+
+    .survey-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+    }
+
+    .detail-icon {
+      font-size: 1.2rem;
+    }
+
+    .survey-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .action-link {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .action-view {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .action-view:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .action-download {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .action-download:hover {
+      background-color: #229954;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state-text {
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+    }
+
+    .score-chart {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .chart-title {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+
+    .chart-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      height: 200px;
+      padding-bottom: 1rem;
+    }
+
+    .chart-bar {
+      flex: 1;
+      background: linear-gradient(to top, var(--primary-color), var(--primary-dark));
+      border-radius: 4px 4px 0 0;
+      min-height: 20px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: white;
+      font-size: 0.9rem;
+      font-weight: bold;
+      padding: 0.5rem 0;
+      position: relative;
+    }
+
+    .chart-bar-label {
+      position: absolute;
+      bottom: -2rem;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    .no-data-text {
+      color: var(--text-light);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .survey-item-header {
+        flex-direction: column;
+      }
+
+      .sort-filter {
+        flex-direction: column;
+      }
+
+      .sort-filter select {
+        width: 100%;
+      }
+
+      .survey-actions {
+        flex-direction: column;
+      }
+
+      .action-link {
+        width: 100%;
+        text-align: center;
+      }
+
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .chart-container {
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="history-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">📊 Survey History</h1>
+      <a href="<%= BASE_URL %>/survey/start" class="btn btn-primary">➕ Take New Survey</a>
+    </div>
+
+    <!-- Statistics -->
+    <% if (reports.length > 0) { %>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value"><%= reports.length %></div>
+          <div class="stat-label">Total Surveys Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value"><%= Math.round(reports.reduce((sum, r) => sum + r.totalScore, 0) / reports.length) %></div>
+          <div class="stat-label">Average Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value"><%= Math.max(...reports.map(r => r.totalScore)) %></div>
+          <div class="stat-label">Highest Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value"><%= reports.length > 1 ? (reports[0].totalScore >= reports[1].totalScore ? '↗' : '↘') : '-' %></div>
+          <div class="stat-label">Latest Trend</div>
+        </div>
+      </div>
+
+      <!-- Score Progress Chart (if multiple reports) -->
+      <% if (reports.length > 1) { %>
+        <div class="score-chart">
+          <div class="chart-title">📈 Your Progress Over Time</div>
+          <div class="chart-container">
+            <% reports.slice(0, 8).reverse().forEach((report, index) => { %>
+              <div class="chart-bar" style="height: <%= (report.totalScore / 100) * 150 %>px; min-height: 20px;">
+                <div class="chart-bar-label"><%= new Date(report.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></div>
+                <span><%= report.totalScore %></span>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Sort Options -->
+      <div class="sort-filter">
+        <select id="sortSelect" onchange="sortReports(this.value)">
+          <option value="newest">📅 Newest First</option>
+          <option value="oldest">📅 Oldest First</option>
+          <option value="highest">⬆️ Highest Score</option>
+          <option value="lowest">⬇️ Lowest Score</option>
+        </select>
+      </div>
+
+      <!-- Survey Reports List -->
+      <div id="reportsList">
+        <% reports.forEach((report, index) => { %>
+          <div class="survey-item" data-score="<%= report.totalScore %>" data-date="<%= new Date(report.generatedAt).getTime() %>">
+            <div class="survey-item-header">
+              <div>
+                <div class="survey-date">
+                  <strong>Survey #<%= reports.length - index %></strong>
+                  <span><%= new Date(report.generatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+                </div>
+              </div>
+              <div class="survey-score-container">
+                <div class="score-badge"><%= report.totalScore %>/100</div>
+                <% if (index > 0) { %>
+                  <div class="score-trend <%= report.totalScore >= reports[index - 1].totalScore ? 'trend-up' : 'trend-down' %>">
+                    <% if (report.totalScore > reports[index - 1].totalScore) { %>
+                      ↗ +<%= (report.totalScore - reports[index - 1].totalScore) %>
+                    <% } else if (report.totalScore < reports[index - 1].totalScore) { %>
+                      ↘ <%= (report.totalScore - reports[index - 1].totalScore) %>
+                    <% } else { %>
+                      ↔ No change
+                    <% } %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="survey-details">
+              <div class="detail-item">
+                <span class="detail-icon">🎯</span>
+                <span><strong><%= report.topIndustries ? report.topIndustries.length : 0 %></strong> Industries</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">💼</span>
+                <span><strong><%= report.topRoles ? report.topRoles.length : 0 %></strong> Roles Recommended</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">📚</span>
+                <span><strong><%= report.skillGaps ? report.skillGaps.length : 0 %></strong> Skill Gaps Identified</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">👥</span>
+                <span><strong><%= report.mentorMatches || 0 %></strong> Mentors Matched</span>
+              </div>
+            </div>
+
+            <div class="survey-actions">
+              <a href="<%= BASE_URL %>/survey/report/<%= report.id %>" class="action-link action-view">👁️ View Full Report</a>
+              <a href="<%= BASE_URL %>/survey/download/<%= report.id %>" class="action-link action-download">📥 Download PDF</a>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <p class="empty-state-text"><strong>No surveys completed yet</strong></p>
+        <p class="empty-state-text" style="font-size: 0.95rem;">Take your first career survey to get personalized opportunity recommendations, identify skill gaps, and connect with mentors.</p>
+        <a href="<%= BASE_URL %>/survey/start" class="btn btn-primary">🚀 Start Your First Survey</a>
+      </div>
+    <% } %>
+  </div>
+
+  <script>
+    function sortReports(sortBy) {
+      const reportsList = document.getElementById('reportsList');
+      const items = Array.from(reportsList.querySelectorAll('.survey-item'));
+
+      items.sort((a, b) => {
+        const scoreA = parseInt(a.dataset.score);
+        const scoreB = parseInt(b.dataset.score);
+        const dateA = parseInt(a.dataset.date);
+        const dateB = parseInt(b.dataset.date);
+
+        switch(sortBy) {
+          case 'newest':
+            return dateB - dateA;
+          case 'oldest':
+            return dateA - dateB;
+          case 'highest':
+            return scoreB - scoreA;
+          case 'lowest':
+            return scoreA - scoreB;
+          default:
+            return dateB - dateA;
+        }
+      });
+
+      // Clear and re-append sorted items
+      items.forEach(item => {
+        reportsList.appendChild(item);
+      });
+    }
+
+    // Add animation on load
+    window.addEventListener('load', () => {
+      const items = document.querySelectorAll('.survey-item');
+      items.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+          item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          item.style.opacity = '1';
+          item.style.transform = 'translateY(0)';
+        }, index * 50);
+      });
+    });
+  </script>
+</body>
+</html>

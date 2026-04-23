@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    :root {
+      --primary-color: #0077B5;
+      --primary-dark: #005885;
+      --success-color: #27AE60;
+      --warning-color: #F39C12;
+      --danger-color: #E74C3C;
+      --text-dark: #2C3E50;
+      --text-light: #7F8C8D;
+      --border-light: #ECF0F1;
+      --bg-light: #F8F9FA;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: var(--text-dark);
+      background-color: var(--bg-light);
+      line-height: 1.6;
+    }
+
+    .survey-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .survey-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .survey-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .survey-header p {
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--success-color);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .survey-content {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .survey-section {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .survey-section:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .section-description {
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .question-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .question-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-dark);
+      font-size: 0.95rem;
+    }
+
+    .question-required {
+      color: var(--danger-color);
+      margin-left: 0.25rem;
+    }
+
+    /* Multiple Choice */
+    .radio-group,
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .radio-item,
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .radio-item:hover,
+    .checkbox-item:hover {
+      background-color: var(--bg-light);
+      border-color: var(--primary-color);
+    }
+
+    .radio-item input,
+    .checkbox-item input {
+      margin-right: 0.75rem;
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+    }
+
+    .radio-item label,
+    .checkbox-item label {
+      flex: 1;
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+
+    /* Rating Scale */
+    .rating-scale {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rating-option {
+      width: calc(20% - 0.4rem);
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .rating-option input[type="radio"] {
+      display: none;
+    }
+
+    .rating-label {
+      display: block;
+      padding: 0.75rem;
+      border: 2px solid var(--border-light);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .rating-option input[type="radio"]:checked + .rating-label {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .rating-label:hover {
+      border-color: var(--primary-color);
+      background-color: rgba(0, 119, 181, 0.05);
+    }
+
+    /* Text Input */
+    .text-input,
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s ease;
+    }
+
+    .text-input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 119, 181, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-light);
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 119, 181, 0.3);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      border: 1px solid var(--border-light);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-light);
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .alert-info {
+      background-color: #D1ECF1;
+      color: #0C5460;
+      border: 1px solid #BEE5EB;
+    }
+
+    .alert-success {
+      background-color: #D4EDDA;
+      color: #155724;
+      border: 1px solid #C3E6CB;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .spinner {
+      border: 4px solid var(--border-light);
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .survey-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .survey-content {
+        padding: 1rem;
+      }
+
+      .rating-option {
+        width: calc(50% - 0.25rem);
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="survey-container">
+    <div class="survey-header">
+      <h1>🎯 Career Assessment Survey</h1>
+      <p>Discover your perfect opportunities and find ideal mentors</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <small>Track your progress as you complete the survey</small>
+    </div>
+
+    <% if (completedBefore && existingSurvey) { %>
+      <div class="alert alert-info">
+        <strong>Welcome back!</strong> You completed this survey on <%= existingSurvey.completed_at %>. 
+        You can retake it now to get an updated opportunity report.
+      </div>
+    <% } %>
+
+    <div class="survey-content">
+      <form id="surveyForm" action="<%= BASE_URL %>/survey/submit" method="POST">
+        
+        <!-- Career Interest Section -->
+        <div class="survey-section">
+          <h2 class="section-title">💼 Career Interests</h2>
+          <p class="section-description">Help us understand your career aspirations</p>
+
+          <div class="question-group">
+            <label class="question-label">
+              What industries interest you most?
+              <span class="question-required">*</span>
+            </label>
+            <div class="checkbox-group">
+              <% ['Technology', 'Finance', 'Healthcare', 'Consulting', 'Marketing', 'Education', 'Legal', 'Government', 'Retail', 'Other'].forEach(industry => { %>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="industry_<%= industry %>" name="q1" value="<%= industry %>">
+                  <label for="industry_<%= industry %>"><%= industry %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">
+              What type of work environment do you prefer?
+              <span class="question-required">*</span>
+            </label>
+            <div class="radio-group">
+              <div class="radio-item">
+                <input type="radio" id="env_startup" name="q2" value="Startup - Fast-paced, innovative">
+                <label for="env_startup">Startup - Fast-paced, innovative</label>
+              </div>
+              <div class="radio-item">
+                <input type="radio" id="env_large" name="q2" value="Large Company - Structured, established">
+                <label for="env_large">Large Company - Structured, established</label>
+              </div>
+              <div class="radio-item">
+                <input type="radio" id="env_nonprofit" name="q2" value="Non-profit - Mission-driven">
+                <label for="env_nonprofit">Non-profit - Mission-driven</label>
+              </div>
+              <div class="radio-item">
+                <input type="radio" id="env_remote" name="q2" value="Remote/Flexible - Work from anywhere">
+                <label for="env_remote">Remote/Flexible - Work from anywhere</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">
+              What are your top career goals?
+              <span class="question-required">*</span>
+            </label>
+            <div class="checkbox-group">
+              <% ['Leadership/Management', 'Technical Expertise', 'Entrepreneurship', 'Work-Life Balance', 'High Salary', 'Social Impact', 'Continuous Learning'].forEach(goal => { %>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="goal_<%= goal %>" name="q3" value="<%= goal %>">
+                  <label for="goal_<%= goal %>"><%= goal %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="survey-section">
+          <h2 class="section-title">💪 Your Skills</h2>
+          <p class="section-description">Tell us about your technical and soft skills</p>
+
+          <div class="question-group">
+            <label class="question-label">
+              Rate your experience with these technical skills
+              <span class="question-required">*</span>
+            </label>
+            <div class="rating-scale">
+              <div class="rating-option">
+                <input type="radio" id="rating1_1" name="q4" value="1">
+                <label for="rating1_1" class="rating-label">Beginner</label>
+              </div>
+              <div class="rating-option">
+                <input type="radio" id="rating1_2" name="q4" value="2">
+                <label for="rating1_2" class="rating-label">Basic</label>
+              </div>
+              <div class="rating-option">
+                <input type="radio" id="rating1_3" name="q4" value="3">
+                <label for="rating1_3" class="rating-label">Good</label>
+              </div>
+              <div class="rating-option">
+                <input type="radio" id="rating1_4" name="q4" value="4">
+                <label for="rating1_4" class="rating-label">Advanced</label>
+              </div>
+              <div class="rating-option">
+                <input type="radio" id="rating1_5" name="q4" value="5">
+                <label for="rating1_5" class="rating-label">Expert</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">
+              Which programming languages are you proficient in?
+            </label>
+            <div class="checkbox-group">
+              <% ['Python', 'Java', 'JavaScript', 'C++', 'C#', 'Go', 'Ruby', 'PHP', 'SQL', 'None'].forEach(lang => { %>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="lang_<%= lang %>" name="q5" value="<%= lang %>">
+                  <label for="lang_<%= lang %>"><%= lang %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">
+              What soft skills do you want to develop?
+              <span class="question-required">*</span>
+            </label>
+            <div class="checkbox-group">
+              <% ['Public Speaking', 'Leadership', 'Negotiation', 'Teamwork', 'Presentation', 'Networking', 'Decision Making'].forEach(skill => { %>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="skill_<%= skill %>" name="q6" value="<%= skill %>">
+                  <label for="skill_<%= skill %>"><%= skill %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience Section -->
+        <div class="survey-section">
+          <h2 class="section-title">📊 Your Experience</h2>
+          <p class="section-description">Help us find mentors at the right level for you</p>
+
+          <div class="question-group">
+            <label class="question-label">
+              Years of professional/internship experience:
+              <span class="question-required">*</span>
+            </label>
+            <div class="radio-group">
+              <% ['None', 'Less than 6 months', '6 months - 1 year', '1-2 years', '2+ years'].forEach(exp => { %>
+                <div class="radio-item">
+                  <input type="radio" id="exp_<%= exp %>" name="q7" value="<%= exp %>">
+                  <label for="exp_<%= exp %>"><%= exp %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">
+              What experience level mentors are you looking for?
+              <span class="question-required">*</span>
+            </label>
+            <div class="radio-group">
+              <% ['Entry-level (0-2 years)', 'Mid-level (3-7 years)', 'Senior (8-15 years)', 'Executive (15+ years)', 'Any level'].forEach(level => { %>
+                <div class="radio-item">
+                  <input type="radio" id="mentor_<%= level %>" name="q8" value="<%= level %>">
+                  <label for="mentor_<%= level %>"><%= level %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">Describe your most relevant work experience:</label>
+            <textarea id="experience" name="q9" placeholder="Share your experience, achievements, or notable projects..."></textarea>
+          </div>
+        </div>
+
+        <!-- Goals & Interests Section -->
+        <div class="survey-section">
+          <h2 class="section-title">🎯 Goals & Next Steps</h2>
+          <p class="section-description">What do you want to achieve?</p>
+
+          <div class="question-group">
+            <label class="question-label">
+              What is your immediate career goal? (6-12 months)
+              <span class="question-required">*</span>
+            </label>
+            <div class="radio-group">
+              <% ['Get first job/internship', 'Change industries', 'Advance in current role', 'Learn new skills', 'Start a business', 'Unclear/Exploring'].forEach(goal => { %>
+                <div class="radio-item">
+                  <input type="radio" id="goal_imm_<%= goal %>" name="q10" value="<%= goal %>">
+                  <label for="goal_imm_<%= goal %>"><%= goal %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">
+              What would help you most right now?
+              <span class="question-required">*</span>
+            </label>
+            <div class="checkbox-group">
+              <% ['Interview preparation', 'Resume review', 'Technical skill training', 'Career guidance', 'Networking connections', 'Project portfolio help'].forEach(help => { %>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="help_<%= help %>" name="q11" value="<%= help %>">
+                  <label for="help_<%= help %>"><%= help %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">
+              How important is mentorship to your career?
+              <span class="question-required">*</span>
+            </label>
+            <div class="rating-scale">
+              <% ['Not Important', 'Somewhat Important', 'Important', 'Very Important', 'Critical'].forEach((imp, idx) => { %>
+                <div class="rating-option">
+                  <input type="radio" id="mentor_imp_<%= idx %>" name="q12" value="<%= idx + 1 %>">
+                  <label for="mentor_imp_<%= idx %>" class="rating-label"><%= imp %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interview Section -->
+        <div class="survey-section">
+          <h2 class="section-title">🎤 Interview Preparation</h2>
+          <p class="section-description">Are you interested in mock interviews?</p>
+
+          <div class="question-group">
+            <label class="question-label">
+              Are you interested in mock interview practice?
+              <span class="question-required">*</span>
+            </label>
+            <div class="radio-group">
+              <% ['Very interested', 'Somewhat interested', 'Not interested'].forEach(interest => { %>
+                <div class="radio-item">
+                  <input type="radio" id="interview_<%= interest %>" name="q13" value="<%= interest %>">
+                  <label for="interview_<%= interest %>"><%= interest %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <div class="question-group">
+            <label class="question-label">What types of interviews do you want to practice?</label>
+            <div class="checkbox-group">
+              <% ['Behavioral interviews', 'Technical interviews', 'Case interviews', 'Product management interviews', 'General career advice'].forEach(type => { %>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="interview_<%= type %>" name="q14" value="<%= type %>">
+                  <label for="interview_<%= type %>"><%= type %></label>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">Generate My Report</button>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Analyzing your responses and finding opportunities...</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('surveyForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingDiv = document.getElementById('loading');
+    const progressFill = document.getElementById('progressFill');
+
+    // Update progress as user fills survey
+    const inputs = form.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+      input.addEventListener('change', updateProgress);
+      input.addEventListener('input', updateProgress);
+    });
+
+    function updateProgress() {
+      const total = form.querySelectorAll('[required]').length;
+      const answered = Array.from(inputs).filter(input => {
+        if (input.type === 'checkbox' || input.type === 'radio') {
+          return input.checked;
+        }
+        return input.value.trim() !== '';
+      }).length;
+
+      const percentage = Math.round((answered / total) * 100);
+      progressFill.style.width = percentage + '%';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      submitBtn.disabled = true;
+      loadingDiv.style.display = 'block';
+
+      try {
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirectUrl;
+        } else {
+          alert('Error generating report: ' + (data.error || 'Unknown error'));
+          submitBtn.disabled = false;
+          loadingDiv.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error submitting survey: ' + error.message);
+        submitBtn.disabled = false;
+        loadingDiv.style.display = 'none';
+      }
+    });
+
+    // Initial progress update
+    updateProgress();
+  </script>
+</body>
+</html>
