@@ -7,23 +7,41 @@ const express = require('express');
 const router = express.Router();
 const SurveyService = require('../utils/surveyService');
 
+const wantsJsonResponse = (req) => req.xhr || String(req.headers.accept || '').includes('application/json');
+
 // Middleware to require user login
 const redirectLogin = (req, res, next) => {
   if (!req.session.userId) {
-    res.redirect((req.app.locals.BASE_URL || '') + '/users/login');
-  } else {
-    next();
+    if (wantsJsonResponse(req)) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    return res.redirect((req.app.locals.BASE_URL || '') + '/users/login');
   }
+
+  next();
 };
 
 // Middleware to require student role
 const requireStudent = (req, res, next) => {
   const sql = 'SELECT user_type FROM users WHERE id = ?';
   db.query(sql, [req.session.userId], (err, results) => {
-    if (err) return next(err);
+    if (err) {
+      if (wantsJsonResponse(req)) {
+        return res.status(500).json({ success: false, error: 'Database error', details: err.message });
+      }
+
+      return next(err);
+    }
+
     if (results[0]?.user_type !== 'student') {
+      if (wantsJsonResponse(req)) {
+        return res.status(403).json({ success: false, error: 'This feature is only available to students' });
+      }
+
       return res.status(403).send('This feature is only available to students');
     }
+
     next();
   });
 };
@@ -63,7 +81,7 @@ router.post('/submit', redirectLogin, requireStudent, (req, res, next) => {
   const responses = {};
 
   // Parse form responses
-  Object.keys(req.body).forEach(key => {
+  Object.keys(req.body || {}).forEach(key => {
     if (key.startsWith('q')) {
       responses[key] = req.body[key];
     }
@@ -77,14 +95,19 @@ router.post('/submit', redirectLogin, requireStudent, (req, res, next) => {
   `;
 
   db.query(completionSql, [studentId], (err, result) => {
-    if (err) return next(err);
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to save survey completion',
+        details: err.message
+      });
+    }
 
     const surveyCompletionId = result.insertId;
 
     // Store individual responses
     const responseQuestions = SurveyService.getSurveyQuestions();
     const allQuestions = Object.values(responseQuestions).flat();
-    let responseCount = 0;
 
     for (const question of allQuestions) {
       const questionKey = `q${question.question_number}`;
@@ -99,11 +122,10 @@ router.post('/submit', redirectLogin, requireStudent, (req, res, next) => {
         db.query(responseSql, [
           studentId,
           question.id,
-          typeof responseValue === 'object' ? JSON.stringify(responseValue) : responseValue,
-          question.question_type === 'rating' ? parseInt(responseValue) || 0 : null
-        ], (err) => {
-          if (err) console.error('Error storing response:', err);
-          responseCount++;
+          Array.isArray(responseValue) ? JSON.stringify(responseValue) : responseValue,
+          question.question_type === 'rating' ? parseInt(responseValue, 10) || 0 : null
+        ], (responseErr) => {
+          if (responseErr) console.error('Error storing response:', responseErr);
         });
       }
     }
