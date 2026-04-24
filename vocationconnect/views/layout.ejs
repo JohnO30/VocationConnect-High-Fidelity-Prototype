@@ -27,6 +27,9 @@
           <a href="<%= BASE_URL %>/messages/my">Messages</a>
           <a href="<%= BASE_URL %>/notifications" id="notifications-link">Notifications</a>
           <a href="<%= BASE_URL %>/interviews/my">Interviews</a>
+          <% if (session.userType === 'student') { %>
+          <a href="<%= BASE_URL %>/survey/start">Survey</a>
+          <% } %>
           <a href="<%= BASE_URL %>/users/profile">Profile</a>
           <a href="<%= BASE_URL %>/users/logout">Logout</a>
         <% } %>
