@@ -1,10 +1,11 @@
 <div class="content-wrapper">
   <div class="welcome-message">
-    <h2 style="margin-top: 0; margin-bottom: 0.5rem;">Welcome back, <strong><%= session.username %></strong>! 👋</h2>
+    <h2 style="margin-top: 0; margin-bottom: 0.5rem;">Welcome back, <strong><%= typeof session !== 'undefined' && session && session.username ? session.username : 'User' %></strong>! 👋</h2>
     <p style="margin-bottom: 0; color: #003D7A;">Ready to connect and grow your professional network?</p>
   </div>
 
-  <% if (session.userType === 'student') { %>
+  <% var userType = (typeof session !== 'undefined' && session && session.userType) ? session.userType : null; %>
+  <% if (userType === 'student') { %>
     <h3>📚 Student Dashboard</h3>
     
     <div class="grid">
