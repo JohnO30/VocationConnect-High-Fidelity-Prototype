@@ -88,6 +88,7 @@ const interviewRoutes = require('./routes/interviews');
 const connectionRoutes = require('./routes/connections');
 const messageRoutes = require('./routes/messages');
 const notificationRoutes = require('./routes/notifications');
+const surveyRoutes = require('./routes/survey');
 
 // Mount route handlers with base path
 app.use(BASE_PATH + '/', mainRoutes);
@@ -97,6 +98,7 @@ app.use(BASE_PATH + '/interviews', interviewRoutes);
 app.use(BASE_PATH + '/connections', connectionRoutes);
 app.use(BASE_PATH + '/messages', messageRoutes);
 app.use(BASE_PATH + '/notifications', notificationRoutes);
+app.use(BASE_PATH + '/survey', surveyRoutes);
 
 // Real-time signaling for interview video
 const server = http.createServer(app);
