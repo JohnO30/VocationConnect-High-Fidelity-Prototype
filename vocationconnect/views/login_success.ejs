@@ -9,7 +9,7 @@
       <div style="font-size: 3rem; margin-bottom: 1rem;">🚀</div>
       <h3 style="color: var(--success-color); margin-bottom: 0.5rem;">Login Successful</h3>
       <p style="color: var(--text-dark); margin-bottom: 1rem;">
-        Welcome back to your <strong><%= userType %></strong> dashboard!
+        Welcome back to VocationConnect.
       </p>
       <p style="color: var(--text-gray); font-size: 0.9rem;">
         You now have access to all your connections, messages, and interview opportunities.
@@ -17,9 +17,15 @@
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 1rem;">
-      <a href="<%= BASE_URL %>/users/login/success" class="btn btn-primary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">
-        Go to Dashboard
-      </a>
+      <% if (userType === 'student') { %>
+        <a href="<%= BASE_URL %>/survey/start" class="btn btn-primary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">
+          Continue to Survey
+        </a>
+      <% } else { %>
+        <a href="<%= BASE_URL %>/" class="btn btn-primary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">
+          Continue to Home
+        </a>
+      <% } %>
       <a href="<%= BASE_URL %>/" class="btn btn-secondary" style="width: 100%; text-align: center; padding: 0.85rem; text-decoration: none;">
         Go to Home
       </a>

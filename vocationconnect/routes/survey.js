@@ -352,11 +352,11 @@ router.get('/history', redirectLogin, requireStudent, (req, res, next) => {
   const studentId = req.session.userId;
 
   const historySql = `
-    SELECT or.id, or.generated_at, or.total_score, or.top_industries, or.top_roles,
-           or.interview_opportunities
-    FROM opportunity_reports or
-    WHERE or.student_id = ?
-    ORDER BY or.generated_at DESC
+    SELECT report.id, report.generated_at, report.total_score, report.top_industries, report.top_roles,
+           report.interview_opportunities
+    FROM opportunity_reports report
+    WHERE report.student_id = ?
+    ORDER BY report.generated_at DESC
     LIMIT 10
   `;
 
@@ -367,6 +367,7 @@ router.get('/history', redirectLogin, requireStudent, (req, res, next) => {
       ...r,
       topIndustries: JSON.parse(r.top_industries || '[]'),
       topRoles: JSON.parse(r.top_roles || '[]'),
+      generatedAt: r.generated_at,
       generatedDate: new Date(r.generated_at).toLocaleDateString()
     }));
 
@@ -403,10 +404,10 @@ router.get('/status', redirectLogin, requireStudent, (req, res, next) => {
 });
 
 /**
- * POST /survey/download/:reportId
+ * GET /survey/download/:reportId
  * Download report as PDF (placeholder for future PDF generation)
  */
-router.post('/download/:reportId', redirectLogin, requireStudent, (req, res, next) => {
+router.get('/download/:reportId', redirectLogin, requireStudent, (req, res, next) => {
   const reportId = parseInt(req.params.reportId);
   const studentId = req.session.userId;
 
