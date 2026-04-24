@@ -435,7 +435,7 @@ class SurveyService {
       },
       mediumTerm: {
         timeframe: '3-5 years',
-        focus: 'Advance into ${report.topRoles[0]?.title || 'a senior role'}',
+        focus: `Advance into ${report.topRoles[0]?.title || 'a senior role'}`,
         actions: [
           'Take on leadership responsibilities',
           'Develop expertise in specialization',
