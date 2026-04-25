@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS mock_interviews (
   scheduled_date  DATETIME NOT NULL,
   duration_minutes INT DEFAULT 30,
   interview_type  VARCHAR(100),
-  status          ENUM('scheduled', 'completed', 'cancelled') DEFAULT 'scheduled',
+  status          ENUM('pending', 'scheduled', 'completed', 'cancelled') DEFAULT 'pending',
   notes           TEXT,
   feedback        TEXT,
   rating          INT,
@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS login_audit (
 CREATE TABLE IF NOT EXISTS notifications (
   id              INT AUTO_INCREMENT,
   user_id         INT NOT NULL,
-  type            ENUM('connection_request', 'connection_accepted', 'connection_declined', 'message', 'interview_scheduled', 'interview_reminder') NOT NULL,
+  type            ENUM('connection_request', 'connection_accepted', 'connection_declined', 'message', 'interview_request', 'interview_accepted', 'interview_declined', 'interview_scheduled', 'interview_reminder') NOT NULL,
   title           VARCHAR(255) NOT NULL,
   message         TEXT NOT NULL,
   related_id      INT, -- ID of related record (connection_id, message_id, etc.)

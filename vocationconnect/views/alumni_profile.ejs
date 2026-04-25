@@ -101,7 +101,7 @@
         </div>
         
         <% if (connection.status === 'accepted' && alumni.available_for_mock) { %>
-          <a href="<%= BASE_URL %>/interviews/schedule/<%= alumni.id %>" class="btn btn-success" style="display: inline-block;">Schedule Mock Interview 🎤</a>
+          <a href="<%= BASE_URL %>/interviews/request/<%= alumni.id %>" class="btn btn-success" style="display: inline-block;">Request Mock Interview 🎤</a>
         <% } %>
       </div>
     <% } %>

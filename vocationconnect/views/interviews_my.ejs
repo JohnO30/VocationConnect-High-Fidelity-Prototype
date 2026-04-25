@@ -14,22 +14,39 @@
                   👤 <%= interview.student_first_name %> <%= interview.student_last_name %>
                 <% } %>
               </h3>
+              <% if (session.userType === 'student') { %>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--text-gray);">
+                  <%= interview.company || '' %><% if (interview.job_title) { %> • <%= interview.job_title %><% } %>
+                </p>
+              <% } %>
             </div>
             <span class="interview-status status-<%= interview.status %>"><%= interview.status %></span>
           </div>
-          
+
           <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-gray);">
             <div>📋 <strong><%= interview.interview_type || 'General' %></strong> Interview</div>
-            <div>📅 <%= new Date(interview.scheduled_date).toLocaleString() %></div>
-            <div>⏱️ <%= interview.duration_minutes %> minutes</div>
+            <div>📅 <%= interview.scheduled_date ? new Date(interview.scheduled_date).toLocaleString() : 'Not scheduled yet' %></div>
+            <div>⏱️ <%= interview.duration_minutes || 30 %> minutes</div>
           </div>
-          
+
+          <% if (interview.status === 'pending') { %>
+            <div class="info" style="margin: 1rem 0;">
+              <p style="margin: 0;">
+                <% if (session.userType === 'student') { %>
+                  Your interview request is waiting for <%= interview.alumni_first_name %> to respond.
+                <% } else { %>
+                  New interview request from <%= interview.student_first_name %> <%= interview.student_last_name %>.
+                <% } %>
+              </p>
+            </div>
+          <% } %>
+
           <% if (interview.notes) { %>
             <div style="margin: 1rem 0; padding: 0.75rem; background-color: var(--bg-light); border-left: 3px solid var(--primary-color); border-radius: 4px;">
               <p style="margin: 0; font-size: 0.9rem;"><strong>📝 Notes:</strong> <%= interview.notes %></p>
             </div>
           <% } %>
-          
+
           <% if (interview.feedback) { %>
             <div class="info" style="margin: 1rem 0;">
               <h4 style="margin-top: 0;">💬 Feedback</h4>
@@ -39,10 +56,22 @@
               <% } %>
             </div>
           <% } %>
-          
-          <div class="card-footer" style="display: flex; gap: 0.5rem;">
+
+          <div class="card-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <% if (interview.status === 'scheduled') { %>
               <a href="<%= BASE_URL %>/interviews/room/<%= interview.id %>" class="btn btn-success" style="flex: 1; text-align: center;">Join Interview Now</a>
+            <% } else if (interview.status === 'pending' && session.userType === 'student') { %>
+              <span style="flex: 1; text-align: center; padding: 0.6rem; color: var(--text-gray); font-size: 0.9rem;">Request pending review</span>
+              <form action="<%= BASE_URL %>/interviews/<%= interview.id %>/cancel" method="POST" style="flex: 1; margin: 0;">
+                <button type="submit" class="btn btn-secondary" style="width: 100%;">Cancel Request</button>
+              </form>
+            <% } else if (interview.status === 'pending' && session.userType === 'alumni') { %>
+              <form action="<%= BASE_URL %>/interviews/<%= interview.id %>/accept" method="POST" style="flex: 1; margin: 0;">
+                <button type="submit" class="btn btn-success" style="width: 100%;">Accept Request</button>
+              </form>
+              <form action="<%= BASE_URL %>/interviews/<%= interview.id %>/decline" method="POST" style="flex: 1; margin: 0;">
+                <button type="submit" class="btn btn-secondary" style="width: 100%;">Decline</button>
+              </form>
             <% } else { %>
               <span style="flex: 1; text-align: center; padding: 0.6rem; color: var(--text-gray); font-size: 0.9rem;">Interview not yet available</span>
             <% } %>
@@ -52,10 +81,10 @@
     </div>
   <% } else { %>
     <div class="card" style="text-align: center; padding: 2rem;">
-      <p style="font-size: 1.1rem; color: var(--text-gray); margin-top: 0;">🎬 No interviews scheduled yet.</p>
+      <p style="font-size: 1.1rem; color: var(--text-gray); margin-top: 0;">🎬 No interviews yet.</p>
       <% if (session.userType === 'student') { %>
-        <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Connect with alumni mentors and schedule your first mock interview.</p>
-        <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse Alumni to Schedule</a>
+        <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Connect with alumni mentors and request your first mock interview.</p>
+        <a href="<%= BASE_URL %>/alumni/browse" class="btn">Browse Alumni</a>
       <% } else { %>
         <p style="color: var(--text-gray);">Interview requests from students will appear here.</p>
       <% } %>

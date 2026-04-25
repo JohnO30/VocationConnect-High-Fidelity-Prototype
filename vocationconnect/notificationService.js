@@ -188,6 +188,133 @@ class NotificationService {
     }
   }
 
+  // Send notification for interview request
+  async notifyInterviewRequest(studentId, alumniId, interviewId, interviewDetails = {}) {
+    try {
+      const studentSql = 'SELECT first_name, last_name FROM users WHERE id = ?';
+      const student = await new Promise((resolve, reject) => {
+        this.db.query(studentSql, [studentId], (err, results) => {
+          if (err) reject(err);
+          else resolve(results[0]);
+        });
+      });
+
+      const alumniSql = `
+        SELECT u.first_name, u.last_name, ap.company, ap.job_title
+        FROM users u
+        LEFT JOIN alumni_profiles ap ON u.id = ap.user_id
+        WHERE u.id = ?
+      `;
+      const alumni = await new Promise((resolve, reject) => {
+        this.db.query(alumniSql, [alumniId], (err, results) => {
+          if (err) reject(err);
+          else resolve(results[0]);
+        });
+      });
+
+      if (!student || !alumni) {
+        return false;
+      }
+
+      const interviewType = interviewDetails.interview_type || 'Mock Interview';
+      const scheduledDate = interviewDetails.scheduled_date
+        ? new Date(interviewDetails.scheduled_date).toLocaleString()
+        : null;
+
+      const title = 'New Interview Request';
+      const notificationMessage = `${student.first_name} ${student.last_name} requested a ${interviewType.toLowerCase()}${scheduledDate ? ` for ${scheduledDate}` : ''}.`;
+
+      const notificationId = await this.createNotification(
+        alumniId,
+        'interview_request',
+        title,
+        notificationMessage,
+        interviewId
+      );
+
+      const prefs = await this.getUserNotificationPreferences(alumniId);
+
+      if (prefs.email_notifications) {
+        const subject = 'New Interview Request on VocationConnect';
+        const htmlContent = `
+          <h2>New Interview Request</h2>
+          <p><strong>${student.first_name} ${student.last_name}</strong> requested a <strong>${interviewType}</strong>.</p>
+          ${scheduledDate ? `<p><strong>Proposed time:</strong> ${scheduledDate}</p>` : ''}
+          <p><a href="${process.env.BASE_URL || 'http://localhost:8000'}/interviews/my">Review Interview Requests</a></p>
+        `;
+
+        await this.sendEmailNotification(alumniId, subject, htmlContent);
+      }
+
+      return notificationId;
+    } catch (error) {
+      console.error('Interview request notification error:', error);
+      return false;
+    }
+  }
+
+  // Send notification for interview response
+  async notifyInterviewResponse(interviewId, responseType) {
+    try {
+      const interviewSql = `
+        SELECT mi.student_id, mi.alumni_id, mi.interview_type, mi.scheduled_date,
+               s.first_name as student_first_name, s.last_name as student_last_name,
+               a.first_name as alumni_first_name, a.last_name as alumni_last_name,
+               ap.company, ap.job_title
+        FROM mock_interviews mi
+        JOIN users s ON mi.student_id = s.id
+        JOIN users a ON mi.alumni_id = a.id
+        LEFT JOIN alumni_profiles ap ON a.id = ap.user_id
+        WHERE mi.id = ?
+      `;
+      const interview = await new Promise((resolve, reject) => {
+        this.db.query(interviewSql, [interviewId], (err, results) => {
+          if (err) reject(err);
+          else resolve(results[0]);
+        });
+      });
+
+      if (!interview) {
+        return false;
+      }
+
+      const alumniName = `${interview.alumni_first_name} ${interview.alumni_last_name}`;
+      const isAccepted = responseType === 'accepted';
+      const title = isAccepted ? 'Interview Request Accepted' : 'Interview Request Declined';
+      const notificationMessage = isAccepted
+        ? `${alumniName} accepted your interview request.`
+        : `${alumniName} declined your interview request.`;
+
+      const notificationId = await this.createNotification(
+        interview.student_id,
+        isAccepted ? 'interview_accepted' : 'interview_declined',
+        title,
+        notificationMessage,
+        interviewId
+      );
+
+      const prefs = await this.getUserNotificationPreferences(interview.student_id);
+
+      if (prefs.email_notifications) {
+        const subject = isAccepted
+          ? 'Interview Request Accepted on VocationConnect'
+          : 'Interview Request Declined on VocationConnect';
+        const htmlContent = `
+          <h2>${isAccepted ? 'Interview Request Accepted' : 'Interview Request Declined'}</h2>
+          <p><strong>${alumniName}</strong> has ${responseType} your interview request.</p>
+          <p><a href="${process.env.BASE_URL || 'http://localhost:8000'}/interviews/my">View Your Interviews</a></p>
+        `;
+
+        await this.sendEmailNotification(interview.student_id, subject, htmlContent);
+      }
+
+      return notificationId;
+    } catch (error) {
+      console.error('Interview response notification error:', error);
+      return false;
+    }
+  }
+
   // Get user notification preferences
   async getUserNotificationPreferences(userId) {
     const sql = `
