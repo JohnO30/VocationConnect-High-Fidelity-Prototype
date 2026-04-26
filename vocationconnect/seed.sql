@@ -21,20 +21,20 @@ VALUES
 -- Alumni profiles
 INSERT INTO alumni_profiles (user_id, company, job_title, industry, years_experience, skills, bio, available_for_mock)
 VALUES
-  (2, 'Tech Corp', 'Senior Software Engineer', 'Technology', 5, 'JavaScript, Python, React, Node.js', 'Passionate software engineer with 5 years of experience in full-stack development. Love mentoring students!', TRUE),
-  (3, 'Finance Plus', 'Financial Analyst', 'Finance', 7, 'Financial Modeling, Excel, Python, SQL', 'Experienced financial analyst specializing in investment banking. Happy to help students prepare for finance interviews.', TRUE);
+  ((SELECT id FROM users WHERE username = 'jane_alumni'), 'Tech Corp', 'Senior Software Engineer', 'Technology', 5, 'JavaScript, Python, React, Node.js', 'Passionate software engineer with 5 years of experience in full-stack development. Love mentoring students!', TRUE),
+  ((SELECT id FROM users WHERE username = 'mike_alumni'), 'Finance Plus', 'Financial Analyst', 'Finance', 7, 'Financial Modeling, Excel, Python, SQL', 'Experienced financial analyst specializing in investment banking. Happy to help students prepare for finance interviews.', TRUE);
 
 -- Connection requests
 INSERT INTO connections (student_id, alumni_id, status, message)
 VALUES
-  (1, 2, 'accepted', 'Hi Jane, I would love to connect and learn more about software engineering!'),
-  (4, 3, 'pending', 'Hello Mike, I am interested in finance and would appreciate your guidance.');
+  ((SELECT id FROM users WHERE username = 'john_student'), (SELECT id FROM users WHERE username = 'jane_alumni'), 'accepted', 'Hi Jane, I would love to connect and learn more about software engineering!'),
+  ((SELECT id FROM users WHERE username = 'sarah_student'), (SELECT id FROM users WHERE username = 'mike_alumni'), 'pending', 'Hello Mike, I am interested in finance and would appreciate your guidance.');
 
 -- Mock interviews
 INSERT INTO mock_interviews (student_id, alumni_id, scheduled_date, duration_minutes, interview_type, status, notes)
 VALUES
-  (1, 2, '2026-02-10 14:00:00', 30, 'Technical Interview', 'scheduled', 'Focus on JavaScript and system design'),
-  (1, 2, '2026-01-20 10:00:00', 45, 'Behavioral Interview', 'completed', 'Discussed past projects and teamwork');
+  ((SELECT id FROM users WHERE username = 'john_student'), (SELECT id FROM users WHERE username = 'jane_alumni'), '2026-02-10 14:00:00', 30, 'Technical Interview', 'scheduled', 'Focus on JavaScript and system design'),
+  ((SELECT id FROM users WHERE username = 'john_student'), (SELECT id FROM users WHERE username = 'jane_alumni'), '2026-01-20 10:00:00', 45, 'Behavioral Interview', 'completed', 'Discussed past projects and teamwork');
 
 -- Interview questions
 INSERT INTO interview_questions (interview_id, question_text, time_allocated)
@@ -47,8 +47,8 @@ VALUES
 -- Interview notes
 INSERT INTO interview_notes (interview_id, user_id, note_text)
 VALUES
-  (2, 1, 'Remember to use STAR method for behavioral questions'),
-  (2, 2, 'Student showed good understanding of React concepts but needs work on system design');
+  (2, (SELECT id FROM users WHERE username = 'john_student'), 'Remember to use STAR method for behavioral questions'),
+  (2, (SELECT id FROM users WHERE username = 'jane_alumni'), 'Student showed good understanding of React concepts but needs work on system design');
 
 -- Default notification settings for test users
 INSERT INTO user_notification_settings (user_id, email_notifications, push_notifications, connection_requests, messages, interviews)
