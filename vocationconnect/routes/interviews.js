@@ -69,13 +69,7 @@ async function verifyStudentCanRequestInterview(studentId, alumniId) {
     return { allowed: false, reason: 'This alumni is not available for mock interviews.' };
   }
 
-  if (alumni.connection_status !== 'accepted') {
-    return {
-      allowed: false,
-      reason: 'You must have an accepted connection before requesting a mock interview.'
-    };
-  }
-
+  // Allow requests regardless of connection status
   return { allowed: true, alumni };
 }
 

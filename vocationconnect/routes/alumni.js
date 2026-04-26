@@ -299,6 +299,7 @@ router.get('/:id', redirectLogin, (req, res, next) => {
         title: results[0].first_name + ' ' + results[0].last_name,
         alumni: results[0],
         connection: connResults.length > 0 ? connResults[0] : null,
+        message: null,
         flash: flash
       });
     });
