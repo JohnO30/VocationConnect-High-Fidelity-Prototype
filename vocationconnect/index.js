@@ -37,7 +37,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    expires: 3600000 // 1 hour
+    expires: 3600000,// 1 hour
+    httpOnly: true,
+    secure: false
   }
 }));
 
@@ -148,4 +150,9 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
   console.log(`VocationConnect app listening on port ${port}...`);
   console.log(`Access at: http://localhost:${port}${BASE_PATH}/`);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
 });
