@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS survey_responses (
   PRIMARY KEY (id),
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (question_id) REFERENCES survey_questions(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_student_question (student_id, question_id),
   INDEX idx_student (student_id),
   INDEX idx_question (question_id)
 );

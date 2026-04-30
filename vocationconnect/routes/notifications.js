@@ -100,7 +100,8 @@ router.get('/settings', redirectLogin, (req, res, next) => {
     .then(settings => {
       res.render('notification_settings', {
         title: 'Notification Settings',
-        settings: settings
+        settings: settings,
+        layout: false
       });
     })
     .catch(err => next(err));

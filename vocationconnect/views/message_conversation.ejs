@@ -19,11 +19,11 @@
     </div>
   </div>
 
-  <form action="<%= BASE_URL %>/directmessages/<%= conversation.id %>" method="POST">
+  <form action="<%= BASE_URL %>/messages/<%= conversation.id %>" method="POST">
     <textarea name="message_text" rows="4" placeholder="Write a message..." style="width: 100%; padding: 0.9rem; border: 1px solid #d1d5db; border-radius: 8px; resize: vertical; font-family: inherit;"></textarea>
     <div style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
       <button type="submit" class="btn btn-success">Send Message</button>
-      <a href="<%= BASE_URL %>/directmessages" class="btn">Back to Direct Messages</a>
+      <a href="<%= BASE_URL %>/messages/my" class="btn">Back to Messages</a>
     </div>
   </form>
 </div>

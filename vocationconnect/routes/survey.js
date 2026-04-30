@@ -67,7 +67,8 @@ router.get('/start', redirectLogin, requireStudent, (req, res, next) => {
       title: 'Career Assessment Survey',
       questions: SurveyService.getSurveyQuestions(),
       existingSurvey: existingSurvey,
-      completedBefore: existingSurvey ? true : false
+      completedBefore: existingSurvey ? true : false,
+      layout: false
     });
   });
 });
@@ -91,7 +92,7 @@ router.post('/submit', redirectLogin, requireStudent, (req, res, next) => {
   const completionSql = `
     INSERT INTO survey_completions (student_id, started_at, completed_at, completed)
     VALUES (?, NOW(), NOW(), TRUE)
-    ON DUPLICATE KEY UPDATE completed_at = NOW(), completed = TRUE
+    ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id), completed_at = NOW(), completed = TRUE
   `;
 
   db.query(completionSql, [studentId], (err, result) => {
@@ -116,7 +117,10 @@ router.post('/submit', redirectLogin, requireStudent, (req, res, next) => {
         const responseSql = `
           INSERT INTO survey_responses (student_id, question_id, response_text, response_numeric)
           VALUES (?, ?, ?, ?)
-          ON DUPLICATE KEY UPDATE response_text = VALUES(response_text)
+          ON DUPLICATE KEY UPDATE
+            response_text = VALUES(response_text),
+            response_numeric = VALUES(response_numeric),
+            answered_at = NOW()
         `;
 
         db.query(responseSql, [
@@ -141,7 +145,7 @@ router.post('/submit', redirectLogin, requireStudent, (req, res, next) => {
           success: true,
           surveyCompletionId: surveyCompletionId,
           reportId: report.reportId,
-          redirectUrl: `/survey/report/${report.reportId}`
+          redirectUrl: `${req.app.locals.BASE_URL || ''}/survey/report/${report.reportId}`
         });
       });
     }, 500);
@@ -307,6 +311,7 @@ router.get('/report/:reportId', redirectLogin, requireStudent, (req, res, next) 
 
           res.render('survey_report', {
             title: 'Your Opportunity Report',
+            layout: false,
             report: {
               id: report.id,
               totalScore: report.total_score,
@@ -325,6 +330,7 @@ router.get('/report/:reportId', redirectLogin, requireStudent, (req, res, next) 
       } else {
         res.render('survey_report', {
           title: 'Your Opportunity Report',
+          layout: false,
           report: {
             id: report.id,
             totalScore: report.total_score,
@@ -373,6 +379,7 @@ router.get('/history', redirectLogin, requireStudent, (req, res, next) => {
 
     res.render('survey_history', {
       title: 'Your Survey Reports',
+      layout: false,
       reports: parsedReports
     });
   });

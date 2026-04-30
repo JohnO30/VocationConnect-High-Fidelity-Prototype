@@ -58,7 +58,7 @@ async function verifyStudentCanRequestInterview(studentId, alumniId) {
     LIMIT 1
   `;
 
-  const results = await query(sql, [alumniId, studentId]);
+  const results = await query(sql, [studentId, alumniId]);
   if (!results || results.length === 0) {
     return { allowed: false, reason: 'Alumni not found' };
   }
@@ -288,6 +288,7 @@ router.get('/room/:id', redirectLogin, async (req, res, next) => {
 
     res.render('interview_room', {
       title: 'Mock Interview',
+      layout: false,
       interview: interview,
       questions: questions,
       userNotes: notes.length > 0 ? notes[0].note_text : ''
